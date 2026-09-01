@@ -527,20 +527,21 @@
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
 
-/* Eraser Popover Flyout (Crisp Square-Rounded & Theme-Matched) */
+/* Eraser Popover Flyout (Compact, Sleek & Theme-Matched) */
 .apple-eraser-flyout {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   background: var(--exc-panel-bg, #232329);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  padding: 12px 14px;
-  border-radius: 8px; /* Crisp square-rounded matching Excalidraw design */
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  padding: 10px 12px;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
   border: 1px solid var(--exc-border, rgba(255, 255, 255, 0.12));
-  animation: popIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  min-width: 224px;
+  animation: popIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 192px;
+  min-width: 192px;
 }
 
 .excalidraw-board.light-mode .apple-eraser-flyout {
@@ -551,16 +552,17 @@
 
 .eraser-size-grid {
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
 
 .eraser-size-btn {
   flex: 1;
-  padding: 5px 6px;
-  font-size: 11px;
-  font-weight: 600;
+  padding: 4px 5px;
+  height: 25px;
+  font-size: 10.5px;
+  font-weight: 700;
   font-family: Inter, sans-serif;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   background: var(--exc-btn-bg, #2c2c35);
   color: var(--text-muted, #94a3b8);
@@ -604,7 +606,7 @@
 .eraser-range-input {
   width: 100%;
   accent-color: #6965db;
-  height: 4px;
+  height: 3.5px;
   cursor: pointer;
 }
 
@@ -613,24 +615,37 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 10px;
-  font-size: 11px;
+  gap: 5px;
+  padding: 5px 8px;
+  height: 26px;
+  font-size: 10.5px;
   font-weight: 600;
   font-family: Inter, sans-serif;
-  border-radius: 6px;
+  border-radius: 5px;
   background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .exc-clear-strokes-btn:hover {
-  background: rgba(239, 68, 68, 0.18);
-  border-color: rgba(239, 68, 68, 0.5);
-  color: #ef4444;
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.excalidraw-board.light-mode .exc-clear-strokes-btn {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.excalidraw-board.light-mode .exc-clear-strokes-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
 }
 
 .excalidraw-board:not(.light-mode) .notes-page-strip {

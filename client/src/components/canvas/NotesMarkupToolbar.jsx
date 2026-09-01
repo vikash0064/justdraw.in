@@ -28,10 +28,10 @@ const STROKE_WIDTHS = [
 ];
 
 const ERASER_SIZES = [
-    { label: 'S', size: 12, desc: 'Precision' },
-    { label: 'M', size: 24, desc: 'Normal' },
-    { label: 'L', size: 44, desc: 'Large' },
-    { label: 'XL', size: 72, desc: 'Block' },
+    { label: 'S', size: 10, desc: 'Precision' },
+    { label: 'M', size: 20, desc: 'Normal' },
+    { label: 'L', size: 32, desc: 'Medium' },
+    { label: 'XL', size: 48, desc: 'Wide' },
 ];
 
 export default function NotesMarkupToolbar({
@@ -41,7 +41,7 @@ export default function NotesMarkupToolbar({
     setColor,
     strokeWidth,
     setStrokeWidth,
-    eraserSize = 24,
+    eraserSize = 20,
     setEraserSize,
     onClearPage,
     paperPattern,
@@ -263,11 +263,11 @@ export default function NotesMarkupToolbar({
                         ))}
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 1 }}>
                         <input
                             type="range"
-                            min="8"
-                            max="100"
+                            min="6"
+                            max="54"
                             value={eraserSize}
                             onChange={(e) => setEraserSize && setEraserSize(Number(e.target.value))}
                             className="eraser-range-input"
@@ -286,7 +286,7 @@ export default function NotesMarkupToolbar({
                             }}
                             title="Clear all strokes on this page"
                         >
-                            <Trash2 size={12} /> Clear Page Strokes
+                            <Trash2 size={11} /> Clear Page Strokes
                         </button>
                     )}
                 </div>

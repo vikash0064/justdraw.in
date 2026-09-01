@@ -6,7 +6,12 @@ const connectDB = async () => {
   const uri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/justdraw';
 
   try {
-    const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
+    const conn = await mongoose.connect(uri, { 
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 25,
+      minPoolSize: 5,
+      socketTimeoutMS: 45000,
+    });
     console.log(`MongoDB connected: ${conn.connection.host}`);
   } catch (error) {
     // In production (Render etc.), don't try memory server — just fail clearly
