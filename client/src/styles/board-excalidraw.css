@@ -1438,15 +1438,16 @@ legend, .exc-panel-label {
     z-index: 60;
   }
 
-  /* Right: Only Share (icon-only), AI (icon-only), and Sidebar Buttons */
+  /* Right: Only Share (icon-only), AI (icon-only), Sidebar, and Fullscreen Buttons */
   .exc-presence,
-  .exc-topbar-right > button:not(.exc-share-btn):not(.exc-ai-btn):not(.exc-sidebar-btn) {
+  .exc-topbar-right > button:not(.exc-share-btn):not(.exc-ai-btn):not(.exc-sidebar-btn):not(.exc-fullscreen-btn) {
     display: none !important;
   }
 
   .exc-share-btn,
   .exc-ai-btn,
-  .exc-sidebar-btn {
+  .exc-sidebar-btn,
+  .exc-fullscreen-btn {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;

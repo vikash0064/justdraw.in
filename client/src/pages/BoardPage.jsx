@@ -3931,7 +3931,7 @@ export default function BoardPage() {
                     >
                         <Sparkles size={14} /> <span className="hide-on-mobile hide-on-tablet">AI</span>
                     </button>
-                    <button className={`exc-top-btn${isFullscreen ? ' active' : ''}`} onClick={toggleFullscreen} data-exc-tooltip={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"}>
+                    <button className={`exc-top-btn exc-fullscreen-btn${isFullscreen ? ' active' : ''}`} onClick={toggleFullscreen} data-exc-tooltip={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"}>
                         {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                     </button>
                 </div>
