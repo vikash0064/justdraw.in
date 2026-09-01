@@ -611,6 +611,47 @@
 .exc-top-btn:hover { background: var(--exc-surface-2); color: var(--exc-text); border-color: var(--exc-border-strong); }
 .exc-top-btn.active { background: rgba(99, 102, 241, 0.18); color: #a5a2f5; border-color: rgba(99, 102, 241, 0.35); }
 
+/* Palm Rejection & Fullscreen button styles */
+.exc-palm-btn {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #f59e0b !important;
+  gap: 5px !important;
+}
+.exc-palm-btn:hover {
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.6) !important;
+}
+.exc-palm-btn.active {
+  background: rgba(245, 158, 11, 0.2) !important;
+  border-color: #f59e0b !important;
+  color: #fbbf24 !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3) !important;
+}
+
+.exc-fullscreen-btn {
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  color: #a5b4fc !important;
+  gap: 5px !important;
+}
+.exc-fullscreen-btn:hover {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #fff !important;
+  border-color: rgba(99, 102, 241, 0.6) !important;
+}
+.exc-fullscreen-btn.active {
+  background: rgba(99, 102, 241, 0.25) !important;
+  border-color: #6366f1 !important;
+  color: #fff !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.35) !important;
+}
+
+.notes-topbar-history-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* ════════════════════
    LEFT PROPERTIES PANEL
    ════════════════════ */
@@ -1419,10 +1460,13 @@ legend, .exc-panel-label {
     z-index: 50;
   }
 
-  /* Left: Only Hamburger Menu Button */
-  .exc-topbar-left > button:nth-child(2),
+  /* Left: Keep Hamburger & Home button accessible */
   .exc-board-title {
-    display: none !important;
+    max-width: 120px;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   /* Center: Drawing Toolbar embedded in Topbar */
@@ -1438,28 +1482,30 @@ legend, .exc-panel-label {
     z-index: 60;
   }
 
-  /* Right: Only Share (icon-only), AI (icon-only), Sidebar, and Fullscreen Buttons */
+  /* Right: Only Share, AI, Sidebar, Fullscreen, and Palm Rejection Buttons */
   .exc-presence,
-  .exc-topbar-right > button:not(.exc-share-btn):not(.exc-ai-btn):not(.exc-sidebar-btn):not(.exc-fullscreen-btn) {
+  .exc-topbar-right > button:not(.exc-share-btn):not(.exc-ai-btn):not(.exc-sidebar-btn):not(.exc-fullscreen-btn):not(.exc-palm-btn) {
     display: none !important;
   }
 
   .exc-share-btn,
   .exc-ai-btn,
   .exc-sidebar-btn,
-  .exc-fullscreen-btn {
+  .exc-fullscreen-btn,
+  .exc-palm-btn {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 36px !important;
     height: 36px !important;
     min-width: 36px !important;
-    padding: 0 !important;
+    padding: 0 8px !important;
     border-radius: 8px !important;
   }
 
   .exc-share-btn span,
-  .exc-ai-btn span {
+  .exc-ai-btn span,
+  .exc-fullscreen-btn span,
+  .exc-palm-btn span.hide-on-tablet {
     display: none !important;
   }
 
@@ -1488,9 +1534,12 @@ legend, .exc-panel-label {
   }
 
   .exc-board-title {
-    max-width: 110px;
+    max-width: 90px;
     font-size: 11px;
     padding: 3px 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .exc-top-btn {
@@ -1500,7 +1549,28 @@ legend, .exc-panel-label {
     font-size: 11px;
   }
 
-  .exc-presence {
+  .exc-presence,
+  .exc-topbar-right > button:not(.exc-share-btn):not(.exc-ai-btn):not(.exc-fullscreen-btn):not(.exc-palm-btn) {
+    display: none !important;
+  }
+
+  .exc-share-btn,
+  .exc-ai-btn,
+  .exc-fullscreen-btn,
+  .exc-palm-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    padding: 0 6px !important;
+    border-radius: 8px !important;
+  }
+
+  .exc-share-btn span,
+  .exc-ai-btn span,
+  .exc-fullscreen-btn span,
+  .exc-palm-btn span.hide-on-mobile {
     display: none !important;
   }
 

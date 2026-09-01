@@ -53,6 +53,8 @@ export default function NotesMarkupToolbar({
     onExportPDF,
     onExportPNG,
     onInsertImage,
+    palmRejection = true,
+    setPalmRejection,
 }) {
     const [dockPosition, setDockPosition] = useState('bottom'); // 'bottom' | 'left' | 'right'
     const [isMinimized, setIsMinimized] = useState(false);
@@ -566,9 +568,25 @@ export default function NotesMarkupToolbar({
                     <Download size={14} />
                 </button>
 
+                {/* 15. Palm Rejection Toggle */}
+                {setPalmRejection && (
+                    <button
+                        className={`apple-tool-btn ${palmRejection ? 'active' : ''}`}
+                        onClick={() => setPalmRejection(prev => !prev)}
+                        title={palmRejection ? "✋ Palm Rejection ON (Stylus only - hand resting safe). Click to allow finger drawing." : "👆 Finger Drawing ON. Click to reject palm touches."}
+                        style={{
+                            color: palmRejection ? '#fbbf24' : '#94a3b8',
+                            backgroundColor: palmRejection ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
+                            borderRadius: '8px'
+                        }}
+                    >
+                        <span style={{ fontSize: 13, lineHeight: 1 }}>✋</span>
+                    </button>
+                )}
+
                 <div className="apple-dock-divider" />
 
-                {/* 15. Minimize / Close Button */}
+                {/* 16. Minimize / Close Button */}
                 <button
                     className="apple-tool-btn"
                     onClick={() => setIsMinimized(true)}

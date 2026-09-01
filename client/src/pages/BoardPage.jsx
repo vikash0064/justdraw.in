@@ -360,18 +360,29 @@ export default function BoardPage() {
     const [showMobileSheet, setShowMobileSheet] = useState(false);
     const pickerTimeoutRef = useRef(null);
     const touchStateRef = useRef({ dist: 0, scale: 1, pos: { x: 0, y: 0 }, center: { x: 0, y: 0 } });
+    const activePenPointerIdRef = useRef(null);
+    const lastPenTimeRef = useRef(0);
+    const lastPointerDownTimeRef = useRef(0);
 
     const toggleFullscreen = useCallback(() => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().then(() => {
-                setIsFullscreen(true);
-                toast.success('Entered Full Screen Mode');
-            }).catch(err => {
-                toast.error('Fullscreen not available: ' + err.message);
-            });
+        const docEl = document.documentElement;
+        const fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+        if (!fsEl) {
+            const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.webkitRequestFullScreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+            if (req) {
+                req.call(docEl).then(() => {
+                    setIsFullscreen(true);
+                    toast.success('Entered Full Screen Mode', { duration: 1800 });
+                }).catch(err => {
+                    toast.error('Fullscreen not available: ' + err.message);
+                });
+            } else {
+                toast.error('Fullscreen not supported on this browser');
+            }
         } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen().then(() => {
+            const exit = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || document.msExitFullscreen;
+            if (exit) {
+                exit.call(document).then(() => {
                     setIsFullscreen(false);
                 });
             }
@@ -1017,7 +1028,8 @@ export default function BoardPage() {
     }, [laserTrail.length, remoteLasers]);
     const handleTouchStart = (e) => {
         const evt = e.evt || e.nativeEvent;
-        if (evt && evt.touches && evt.touches.length === 2) {
+        // Two or more fingers: smooth pinch-zoom and pan
+        if (evt && evt.touches && evt.touches.length >= 2) {
             const t1 = evt.touches[0];
             const t2 = evt.touches[1];
             const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
@@ -1030,12 +1042,26 @@ export default function BoardPage() {
             };
             return;
         }
+
+        // Single touch:
+        // Check if this is an Apple Pencil / Stylus (touchType === 'stylus')
+        const isStylus = evt?.touches && evt.touches[0]?.touchType === 'stylus';
+        if (isStylus) {
+            handleMouseDown(e);
+            return;
+        }
+
+        // Palm Rejection: If enabled and on a drawing tool, drop touch (it's palm or finger)
+        if (palmRejection && (tool === 'pencil' || tool === 'highlighter' || tool === 'eraser' || tool === 'laser' || tool === 'draw-to-shape')) {
+            return; // Hand resting on screen -> completely safe!
+        }
+
         handleMouseDown(e);
     };
 
     const handleTouchMove = (e) => {
         const evt = e.evt || e.nativeEvent;
-        if (evt && evt.touches && evt.touches.length === 2) {
+        if (evt && evt.touches && evt.touches.length >= 2) {
             if (evt.cancelable) evt.preventDefault();
             const t1 = evt.touches[0];
             const t2 = evt.touches[1];
@@ -1065,6 +1091,18 @@ export default function BoardPage() {
             setStagePos(newPos);
             return;
         }
+
+        // Single touch:
+        const isStylus = evt?.touches && evt.touches[0]?.touchType === 'stylus';
+        if (isStylus) {
+            handleMouseMove(e);
+            return;
+        }
+
+        if (palmRejection && (tool === 'pencil' || tool === 'highlighter' || tool === 'eraser' || tool === 'laser' || tool === 'draw-to-shape')) {
+            return; // Drop palm move!
+        }
+
         handleMouseMove(e);
     };
 
@@ -1082,18 +1120,53 @@ export default function BoardPage() {
         if (editingText) return;
 
         const evt = e.evt || e.nativeEvent;
-        const pointerType = evt?.pointerType || (evt?.touches ? 'touch' : 'mouse');
-        const rawPressure = evt?.pressure || 0.5;
-
-        // Prevent duplicate: if a pointer event (pen/stylus) already handled this, skip mouse event
-        if (evt?.type === 'mousedown' && (evt?.pointerType === 'pen' || evt?.pointerType === 'stylus')) {
-            return;
+        let pointerType = 'mouse';
+        if (evt?.pointerType) {
+            pointerType = evt.pointerType;
+        } else if (evt?.touches && evt.touches.length > 0) {
+            pointerType = evt.touches[0].touchType === 'stylus' ? 'pen' : 'touch';
+        } else if (evt?.changedTouches && evt.changedTouches.length > 0) {
+            pointerType = evt.changedTouches[0].touchType === 'stylus' ? 'pen' : 'touch';
         }
 
+        const rawPressure = evt?.pressure || 0.5;
+
+        // Auto-detect Apple Pencil / Stylus usage
+        if (pointerType === 'pen') {
+            lastPenTimeRef.current = Date.now();
+            activePenPointerIdRef.current = evt?.pointerId ?? null;
+        }
+
+        // Drop synthetic mouse events generated by touch/pen
+        if (evt?.type === 'mousedown') {
+            if (Date.now() - lastPointerDownTimeRef.current < 500) {
+                return;
+            }
+            if (evt?.sourceCapabilities?.firesTouchEvents || evt?.pointerType === 'pen' || evt?.pointerType === 'touch') {
+                return;
+            }
+            if (Date.now() - lastPenTimeRef.current < 2000) {
+                return; // Pen was used; ignore simulated mouse
+            }
+        }
+        lastPointerDownTimeRef.current = Date.now();
+
         // Touch Resistance / Palm Rejection check for iPad / Tablet drawing
-        // Allow 'pen' (Apple Pencil) and 'stylus' always — block only raw 'touch' (finger)
-        if (palmRejection && pointerType === 'touch' && (tool === 'pencil' || tool === 'eraser' || tool === 'laser' || tool === 'draw-to-shape')) {
-            return;
+        // If palmRejection is ON: only 'pen' (Apple Pencil) or desktop 'mouse' can draw
+        if (palmRejection) {
+            const isDrawingTool = tool === 'pencil' || tool === 'highlighter' || tool === 'eraser' || tool === 'laser' || tool === 'draw-to-shape';
+            const isTouch = pointerType === 'touch' || (evt?.touches && evt.touches[0]?.touchType === 'direct');
+            const isPalmArea = (evt?.width && evt.width > 24) || (evt?.height && evt.height > 24) ||
+                               (evt?.touches && (evt.touches[0]?.radiusX > 20 || evt.touches[0]?.radiusY > 20));
+
+            if (isDrawingTool && (isTouch || isPalmArea)) {
+                return; // Palm resting on screen -> 100% blocked!
+            }
+
+            // If an Apple Pencil is already drawing, reject any other pointerId (e.g. palm contact)
+            if (activePenPointerIdRef.current !== null && evt?.pointerId !== undefined && evt.pointerId !== activePenPointerIdRef.current) {
+                return;
+            }
         }
 
         // Click on empty stage → deselect
@@ -1366,15 +1439,41 @@ export default function BoardPage() {
 
     const handleMouseMove = (e) => {
         const evt = e.evt || e.nativeEvent;
-        const pointerType = evt?.pointerType || (evt?.touches ? 'touch' : 'mouse');
-
-        // Skip mouse events when Apple Pencil (pen/stylus) pointer event is handling it
-        if (evt?.type === 'mousemove' && (evt?.pointerType === 'pen' || evt?.pointerType === 'stylus')) {
-            return;
+        let pointerType = 'mouse';
+        if (evt?.pointerType) {
+            pointerType = evt.pointerType;
+        } else if (evt?.touches && evt.touches.length > 0) {
+            pointerType = evt.touches[0].touchType === 'stylus' ? 'pen' : 'touch';
+        } else if (evt?.changedTouches && evt.changedTouches.length > 0) {
+            pointerType = evt.changedTouches[0].touchType === 'stylus' ? 'pen' : 'touch';
         }
 
-        if (palmRejection && pointerType === 'touch' && (tool === 'pencil' || tool === 'eraser' || tool === 'laser')) {
-            return;
+        // Drop synthetic mousemove generated from touch
+        if (evt?.type === 'mousemove') {
+            if (Date.now() - lastPenTimeRef.current < 1500) {
+                return; // Pen is active, reject simulated mousemove
+            }
+            if (evt?.sourceCapabilities?.firesTouchEvents) {
+                return;
+            }
+        }
+
+        // If Apple Pencil is currently drawing, only accept points from the pen pointer
+        if (activePenPointerIdRef.current !== null && evt?.pointerId !== undefined) {
+            if (evt.pointerId !== activePenPointerIdRef.current) {
+                return; // Palm movement while pen writes -> rejected!
+            }
+        }
+
+        if (palmRejection) {
+            const isDrawingTool = tool === 'pencil' || tool === 'highlighter' || tool === 'eraser' || tool === 'laser' || tool === 'draw-to-shape';
+            const isTouch = pointerType === 'touch' || (evt?.touches && evt.touches[0]?.touchType === 'direct');
+            const isPalmArea = (evt?.width && evt.width > 24) || (evt?.height && evt.height > 24) ||
+                               (evt?.touches && (evt.touches[0]?.radiusX > 20 || evt.touches[0]?.radiusY > 20));
+
+            if (isDrawingTool && (isTouch || isPalmArea)) {
+                return;
+            }
         }
 
         const stage = e.target.getStage();
@@ -1513,7 +1612,16 @@ export default function BoardPage() {
         }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e) => {
+        const evt = e?.evt || e?.nativeEvent;
+        if (evt?.pointerId !== undefined && activePenPointerIdRef.current !== null) {
+            if (evt.pointerId === activePenPointerIdRef.current) {
+                activePenPointerIdRef.current = null;
+            }
+        } else {
+            activePenPointerIdRef.current = null;
+        }
+
         if (tool === 'eraser') {
             setTimeout(() => {
                 setEraserTrail([]);
@@ -3883,47 +3991,80 @@ export default function BoardPage() {
 
                 {/* Right: Presence + Actions */}
                 <div className="exc-topbar-right">
-                    {/* Presence avatars */}
+                    {/* Presence avatars (hidden on tablets/mobiles to prevent overflow) */}
                     <div className="exc-presence">
-                        {onlineUsers.slice(0, 4).map(u => (
+                        {onlineUsers.slice(0, 3).map(u => (
                             <div key={u.userId} className="exc-avatar" style={{ background: getAvatarColor(u.userName) }} data-exc-tooltip={u.userName}>
                                 {getInitials(u.userName)}
                             </div>
                         ))}
-                        {onlineUsers.length > 4 && <div className="exc-avatar" style={{ background: '#444' }}>+{onlineUsers.length - 4}</div>}
+                        {onlineUsers.length > 3 && <div className="exc-avatar" style={{ background: '#444' }}>+{onlineUsers.length - 3}</div>}
                     </div>
 
-                    <button className="exc-top-btn exc-share-btn" onClick={copyShareLink} data-exc-tooltip="Copy join link">
-                        <Share2 size={14} /> <span className="hide-on-mobile">Share</span>
-                    </button>
+                    {/* Notes Mode: Quick Topbar Undo & Redo for Tablets */}
+                    {isNotesMode && (
+                        <div className="notes-topbar-history-group hide-on-mobile">
+                            <button
+                                className="exc-top-btn"
+                                onClick={undo}
+                                disabled={historyIdx <= 0}
+                                style={{ opacity: historyIdx > 0 ? 1 : 0.4, padding: '0 8px' }}
+                                title="Undo (Ctrl+Z)"
+                            >
+                                <Undo2 size={14} />
+                            </button>
+                            <button
+                                className="exc-top-btn"
+                                onClick={redo}
+                                disabled={historyIdx >= historyLen - 1}
+                                style={{ opacity: historyIdx < historyLen - 1 ? 1 : 0.4, padding: '0 8px' }}
+                                title="Redo (Ctrl+Y)"
+                            >
+                                <Redo2 size={14} />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Palm Rejection Toggle Button — Essential for iPad / Tablet drawing! */}
                     <button
-                        className={`exc-top-btn${activeRightTab === 'chat' ? ' active' : ''}`}
-                        onClick={() => setActiveRightTab(activeRightTab === 'chat' ? null : 'chat')}
-                        data-exc-tooltip="Realtime Chat"
-                    >
-                        <MessageSquareText size={15} />
-                    </button>
-                    <button
-                        className={`exc-top-btn${activeRightTab === 'studio' || showVideo ? ' active' : ''}`}
-                        onClick={() => setActiveRightTab(activeRightTab === 'studio' ? null : 'studio')}
-                        data-exc-tooltip="Video Call & Recording"
-                    >
-                        <Video size={15} />
-                    </button>
-                    <button
-                        className={`exc-top-btn exc-sidebar-btn${activeRightTab === 'library' ? ' active' : ''}`}
-                        style={{
-                            color: activeRightTab === 'library' ? '#fff' : '#c084fc',
-                            backgroundColor: activeRightTab === 'library' ? '#8b5cf6' : 'rgba(168, 85, 247, 0.18)',
-                            border: activeRightTab === 'library' ? '1px solid #8b5cf6' : '1px solid rgba(168, 85, 247, 0.45)',
-                            boxShadow: activeRightTab === 'library' ? '0 0 14px rgba(139, 92, 246, 0.55)' : '0 0 8px rgba(168, 85, 247, 0.25)',
-                            transition: 'all 0.15s ease'
+                        className={`exc-top-btn exc-palm-btn${palmRejection ? ' active' : ''}`}
+                        onClick={() => {
+                            setPalmRejection(prev => {
+                                const next = !prev;
+                                toast(next ? '✋ Palm Rejection ON (Stylus only - hand resting is safe!)' : '👆 Finger & Stylus Drawing ON', {
+                                    icon: next ? '✋' : '👆',
+                                    duration: 2500
+                                });
+                                return next;
+                            });
                         }}
-                        onClick={() => setActiveRightTab(activeRightTab === 'library' ? null : 'library')}
-                        data-exc-tooltip="Tools & Assets Library"
+                        title={palmRejection ? "Palm Rejection is ON: Rest hand safely (Stylus only). Click to allow finger drawing." : "Palm Rejection is OFF: Drawing with fingers enabled. Click to reject palm touches."}
                     >
-                        <ShapesLogoIcon size={22} />
+                        <span style={{ fontSize: 13, lineHeight: 1 }}>✋</span>
+                        <span className="hide-on-mobile hide-on-tablet" style={{ fontSize: 11, fontWeight: 600 }}>
+                            {palmRejection ? 'Palm Safe' : 'Finger On'}
+                        </span>
                     </button>
+
+                    {/* Fullscreen Button — ALWAYS VISIBLE on Tablet, Desktop & Mobile */}
+                    <button
+                        className={`exc-top-btn exc-fullscreen-btn${isFullscreen ? ' active' : ''}`}
+                        onClick={toggleFullscreen}
+                        data-exc-tooltip={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"}
+                        title={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"}
+                    >
+                        {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+                        <span className="hide-on-mobile hide-on-tablet" style={{ fontSize: 11 }}>
+                            {isFullscreen ? 'Exit' : 'Full'}
+                        </span>
+                    </button>
+
+                    {/* Share Button */}
+                    <button className="exc-top-btn exc-share-btn" onClick={copyShareLink} data-exc-tooltip="Copy join link">
+                        <Share2 size={14} /> <span className="hide-on-mobile hide-on-tablet">Share</span>
+                    </button>
+
+                    {/* AI Assistant Button */}
                     <button
                         className={`exc-top-btn exc-ai-btn${activeRightTab === 'ai' ? ' active' : ''}`}
                         onClick={() => setActiveRightTab(activeRightTab === 'ai' ? null : 'ai')}
@@ -3931,9 +4072,41 @@ export default function BoardPage() {
                     >
                         <Sparkles size={14} /> <span className="hide-on-mobile hide-on-tablet">AI</span>
                     </button>
-                    <button className={`exc-top-btn exc-fullscreen-btn${isFullscreen ? ' active' : ''}`} onClick={toggleFullscreen} data-exc-tooltip={isFullscreen ? "Exit Fullscreen" : "Full Screen Mode"}>
-                        {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+
+                    {/* Chat Button */}
+                    <button
+                        className={`exc-top-btn hide-on-mobile${activeRightTab === 'chat' ? ' active' : ''}`}
+                        onClick={() => setActiveRightTab(activeRightTab === 'chat' ? null : 'chat')}
+                        data-exc-tooltip="Realtime Chat"
+                    >
+                        <MessageSquareText size={15} />
                     </button>
+
+                    {!isNotesMode && (
+                        <button
+                            className={`exc-top-btn hide-on-mobile hide-on-tablet${activeRightTab === 'studio' || showVideo ? ' active' : ''}`}
+                            onClick={() => setActiveRightTab(activeRightTab === 'studio' ? null : 'studio')}
+                            data-exc-tooltip="Video Call & Recording"
+                        >
+                            <Video size={15} />
+                        </button>
+                    )}
+                    {!isNotesMode && (
+                        <button
+                            className={`exc-top-btn exc-sidebar-btn hide-on-mobile hide-on-tablet${activeRightTab === 'library' ? ' active' : ''}`}
+                            style={{
+                                color: activeRightTab === 'library' ? '#fff' : '#c084fc',
+                                backgroundColor: activeRightTab === 'library' ? '#8b5cf6' : 'rgba(168, 85, 247, 0.18)',
+                                border: activeRightTab === 'library' ? '1px solid #8b5cf6' : '1px solid rgba(168, 85, 247, 0.45)',
+                                boxShadow: activeRightTab === 'library' ? '0 0 14px rgba(139, 92, 246, 0.55)' : '0 0 8px rgba(168, 85, 247, 0.25)',
+                                transition: 'all 0.15s ease'
+                            }}
+                            onClick={() => setActiveRightTab(activeRightTab === 'library' ? null : 'library')}
+                            data-exc-tooltip="Tools & Assets Library"
+                        >
+                            <ShapesLogoIcon size={20} />
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -5273,6 +5446,8 @@ export default function BoardPage() {
                         onExportPDF={exportToA4PDF}
                         onExportPNG={exportPNG}
                         onInsertImage={insertImageFromFile}
+                        palmRejection={palmRejection}
+                        setPalmRejection={setPalmRejection}
                     />
 
                     {/* ══ NOTES BOARD THUMBNAIL GALLERY STRIP ══ */}
