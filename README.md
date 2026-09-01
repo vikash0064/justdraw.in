@@ -1,10 +1,14 @@
 # 🎨 justdraw.in — Collaborative Whiteboard, Architecture Diagrams & Notes Suite
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-justdraw--in.onrender.com-6366f1?style=for-the-badge)](https://justdraw-in.onrender.com)
+
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 [![React](https://img.shields.io/badge/React-19.0-61dafb.svg?logo=react)](https://react.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-Express-339933.svg?logo=node.js)](https://nodejs.org/)
 [![Socket.io](https://img.shields.io/badge/Socket.io-4.8-010101.svg?logo=socket.io)](https://socket.io/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248.svg?logo=mongodb)](https://www.mongodb.com/)
+
+> 🌐 **Live at**: [https://justdraw-in.onrender.com](https://justdraw-in.onrender.com)
 
 **justdraw.in** is an all-in-one real-time collaborative workspace platform. Built for designers, developers, students, and product teams, **justdraw** combines high-performance interactive whiteboard studios, cloud system architecture builders, SQL ER diagram modeling, and Apple Notes-style digital notebook canvas with AI intelligence.
 
