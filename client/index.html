@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>justdraw — Collaborative Whiteboard</title>
+    <meta name="description" content="Real-time collaborative whiteboard and diagramming SaaS platform for teams." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='6' cy='6' r='4.2' fill='%236366f1'/><rect x='13.5' y='2' width='8.5' height='8.5' rx='2' fill='%23f43f5e'/><path d='M 6 13.5 L 10.5 22 L 1.5 22 Z' fill='%2310b981'/><circle cx='18' cy='18' r='4.2' fill='%23f59e0b'/></svg>" />
+    <!-- Preload critical fonts including Excalidraw handwritten font families -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Patrick+Hand&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Architects+Daughter&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Patrick+Hand&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&family=Architects+Daughter&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap" />
+    <style>
+      /* Prevent black flash — set background immediately */
+      html, body { background: #fbfdf9; margin: 0; }
+      body.dark, html.dark { background: #0a0a0f; }
+    </style>
+  </head>
+  <body>
+    <script>
+      // Apply theme before React loads to prevent flash
+      (function() {
+        var t = localStorage.getItem('centrio_theme') || 'dark';
+        document.documentElement.classList.add(t);
+      })();
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

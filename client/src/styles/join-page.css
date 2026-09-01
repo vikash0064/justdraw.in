@@ -1,0 +1,382 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   JUSTDRAW — JOIN ROOM PORTAL STYLES (WITH SIDEBAR INTEGRATION)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.join-dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--ink);
+  font-family: 'Manrope', 'Inter', sans-serif;
+  transition: background 0.35s ease, color 0.35s ease;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.join-main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  padding: 2.5rem 3rem;
+  max-width: 1360px;
+  background-image: radial-gradient(rgba(102, 87, 217, 0.08) 1.5px, transparent 0);
+  background-size: 22px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  z-index: 10;
+}
+
+/* ── Main Container (2-Column Grid) ── */
+.join-main-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 36px;
+  align-items: center;
+}
+
+/* ── Left Column: Interactive Sketch Teaser ── */
+.join-teaser-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.join-teaser-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+  box-shadow: 0 4px 18px rgba(16, 19, 95, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.join-teaser-canvas {
+  width: 100%;
+  height: 220px;
+  background: var(--bg-secondary);
+  border: 1.5px dashed var(--violet);
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+/* Canvas Mock Elements */
+.canvas-grid-dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--border-light) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+  opacity: 0.5;
+}
+
+.canvas-note-yellow {
+  position: absolute;
+  left: 20px;
+  top: 26px;
+  width: 130px;
+  background: #fff3bf;
+  color: #744210;
+  border: 1.5px solid #fcc419;
+  border-radius: 4px;
+  padding: 8px 10px;
+  transform: rotate(-3deg);
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.08);
+  font-family: 'Shantell Sans', 'Caveat', cursive;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.canvas-note-purple {
+  position: absolute;
+  right: 20px;
+  bottom: 24px;
+  width: 140px;
+  background: #e5dbff;
+  color: #49148c;
+  border: 1.5px solid #b197fc;
+  border-radius: 4px;
+  padding: 8px 10px;
+  transform: rotate(3deg);
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.08);
+  font-family: 'Shantell Sans', 'Caveat', cursive;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+/* Floating Multiplayer Cursors */
+.join-cursor-1 {
+  position: absolute;
+  left: 135px;
+  top: 95px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  animation: floatCursor1 6s ease-in-out infinite alternate;
+}
+
+.join-cursor-2 {
+  position: absolute;
+  right: 120px;
+  top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  animation: floatCursor2 5s ease-in-out infinite alternate;
+}
+
+@keyframes floatCursor1 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(16px, -10px); }
+  100% { transform: translate(-8px, 12px); }
+}
+
+@keyframes floatCursor2 {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-18px, 15px); }
+  100% { transform: translate(10px, -6px); }
+}
+
+.cursor-pill {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  color: #000;
+}
+
+/* Feature Badge Row */
+.join-features-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.join-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 11.5px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.join-feature-item svg {
+  color: var(--violet);
+  flex-shrink: 0;
+}
+
+/* ── Right Column: Join Session Card ── */
+.join-form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 30px 26px;
+  box-shadow: 0 4px 18px rgba(16, 19, 95, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.join-card-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--violet);
+  margin-bottom: 4px;
+  font-family: 'Inter', sans-serif;
+}
+
+.join-card-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin: 0 0 6px;
+  line-height: 1.15;
+}
+
+.join-card-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Form Styles */
+.join-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.join-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.join-field-group label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-family: 'Inter', sans-serif;
+}
+
+.join-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.join-input {
+  width: 100%;
+  height: 44px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.join-input:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(102, 87, 217, 0.15);
+  outline: none;
+}
+
+.join-input::placeholder {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.join-paste-btn {
+  position: absolute;
+  right: 6px;
+  padding: 5px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--violet);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.join-paste-btn:hover {
+  background: var(--surface-hover);
+  color: var(--violet-dark);
+}
+
+/* Error banner */
+.join-error-msg {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Main Action Button */
+.join-submit-btn {
+  width: 100%;
+  height: 46px;
+  margin-top: 6px;
+  background: var(--violet);
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(102, 87, 217, 0.25);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.join-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 87, 217, 0.35);
+  background: var(--violet-dark);
+}
+
+.join-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Hand-drawn sketch hint under card */
+.join-sketch-hint {
+  margin-top: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(245, 197, 24, 0.08);
+  border: 1px dashed rgba(245, 197, 24, 0.3);
+  border-radius: 4px;
+  font-size: 11.5px;
+  color: var(--yellow);
+  line-height: 1.45;
+}
+
+.dark .join-sketch-hint {
+  color: #fde047;
+}
+
+.join-sketch-hint span {
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 960px) {
+  .join-main-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .join-teaser-col {
+    order: 2;
+  }
+
+  .join-form-card {
+    order: 1;
+    padding: 24px 18px;
+  }
+}

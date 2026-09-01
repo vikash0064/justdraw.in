@@ -1,0 +1,289 @@
+/* ── Canvas Threaded Comments CSS ── */
+
+.comments-canvas-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none; /* Let clicks pass through unless on markers */
+    z-index: 950;
+}
+
+.comment-pin-container {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: auto; /* Enable clicks on pins/popovers */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Pin Marker bubble matching reference screenshot */
+.comment-pin-marker {
+    width: 34px;
+    height: 34px;
+    border-radius: 20px 20px 20px 4px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    color: #ffffff;
+    border: none;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45);
+    transition: box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+.comment-pin-marker:active {
+    cursor: grabbing;
+}
+
+.comment-pin-marker:hover {
+    transform: scale(1.12) translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.65);
+}
+
+.comment-pin-marker.resolved {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.comment-pin-marker.active {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.5), 0 8px 20px rgba(124, 58, 237, 0.6);
+}
+
+.reply-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 10px;
+    border: 1px solid #1a1a2e;
+}
+
+/* Thread Popover Box matching official Excalidraw UI */
+.comment-thread-popover {
+    position: absolute;
+    top: 38px;
+    left: 10px;
+    width: 260px;
+    background: #1c1c28 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 10px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: popPopover 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100;
+}
+
+@keyframes popPopover {
+    from { opacity: 0; transform: scale(0.95) translateY(-6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.popover-author {
+    font-size: 12px;
+    font-weight: 600;
+    color: #f8fafc;
+}
+
+.popover-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.popover-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.popover-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.popover-btn.resolve-btn.active {
+    color: #10b981;
+}
+
+.popover-btn.delete-btn:hover {
+    color: #ef4444;
+}
+
+/* Bubbles area */
+.popover-content {
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.comment-bubble {
+    font-size: 12px;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.comment-bubble p {
+    margin: 0;
+    color: #e2e8f0;
+}
+
+.comment-time {
+    font-size: 10px;
+    color: #64748b;
+    display: block;
+    margin-top: 2px;
+}
+
+.comment-bubble.main p {
+    font-weight: 500;
+}
+
+.comment-bubble.reply {
+    padding-left: 8px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.reply-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.reply-author {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #a5b4fc;
+}
+
+.reply-time {
+    font-size: 0.62rem;
+    color: var(--text-secondary, #64748b);
+}
+
+/* Footer / Input */
+.popover-footer {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px;
+    border-top: 1px solid var(--border, rgba(255, 255, 255, 0.06));
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.reply-input {
+    flex: 1;
+    background: var(--hover, rgba(255, 255, 255, 0.03));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text, #f1f5f9);
+    font-size: 0.76rem;
+    outline: none;
+}
+
+.reply-input:focus {
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.reply-send-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.reply-send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Hint box */
+.comment-tool-hint {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(139, 92, 246, 0.9);
+    color: white;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideUpHint 0.25s ease;
+}
+
+@keyframes slideUpHint {
+    from { opacity: 0; transform: translate(-50%, 20px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Comment toggle tool btn in toolbar */
+.comment-tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.comment-tool-btn:hover {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
+}
+
+.comment-tool-btn.active {
+    background: #10b981;
+    color: white;
+    border-color: transparent;
+}
