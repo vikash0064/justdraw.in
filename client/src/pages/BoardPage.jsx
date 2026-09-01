@@ -1085,7 +1085,13 @@ export default function BoardPage() {
         const pointerType = evt?.pointerType || (evt?.touches ? 'touch' : 'mouse');
         const rawPressure = evt?.pressure || 0.5;
 
+        // Prevent duplicate: if a pointer event (pen/stylus) already handled this, skip mouse event
+        if (evt?.type === 'mousedown' && (evt?.pointerType === 'pen' || evt?.pointerType === 'stylus')) {
+            return;
+        }
+
         // Touch Resistance / Palm Rejection check for iPad / Tablet drawing
+        // Allow 'pen' (Apple Pencil) and 'stylus' always — block only raw 'touch' (finger)
         if (palmRejection && pointerType === 'touch' && (tool === 'pencil' || tool === 'eraser' || tool === 'laser' || tool === 'draw-to-shape')) {
             return;
         }
@@ -1361,6 +1367,12 @@ export default function BoardPage() {
     const handleMouseMove = (e) => {
         const evt = e.evt || e.nativeEvent;
         const pointerType = evt?.pointerType || (evt?.touches ? 'touch' : 'mouse');
+
+        // Skip mouse events when Apple Pencil (pen/stylus) pointer event is handling it
+        if (evt?.type === 'mousemove' && (evt?.pointerType === 'pen' || evt?.pointerType === 'stylus')) {
+            return;
+        }
+
         if (palmRejection && pointerType === 'touch' && (tool === 'pencil' || tool === 'eraser' || tool === 'laser')) {
             return;
         }
@@ -2379,6 +2391,7 @@ export default function BoardPage() {
                     draggable={tool === 'pan'}
                     onWheel={handleWheel}
                     onMouseDown={handleMouseDown} onMousemove={handleMouseMove} onMouseup={handleMouseUp}
+                    onPointerDown={handleMouseDown} onPointermove={handleMouseMove} onPointerup={handleMouseUp}
                     onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
                     onDragEnd={(e) => { if (tool === 'pan') setStagePos({ x: e.target.x(), y: e.target.y() }); }}
                     style={{
