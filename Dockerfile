@@ -1,13 +1,13 @@
-# ── Stage 1: Build Frontend (Vite React SPA) ──
-FROM node:18-alpine AS client-builder
+# ── Stage 1: Build Frontend (Vite React SPA on Node 22) ──
+FROM node:22-alpine AS client-builder
 WORKDIR /app/client
 COPY client/package*.json ./
 RUN npm ci
 COPY client/ .
 RUN npm run build
 
-# ── Stage 2: Express Backend Server Runtime ──
-FROM node:18-alpine
+# ── Stage 2: Express Backend Server Runtime (Node 22) ──
+FROM node:22-alpine
 WORKDIR /app
 
 # Install backend production dependencies
