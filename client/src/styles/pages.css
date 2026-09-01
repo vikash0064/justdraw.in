@@ -647,6 +647,26 @@
     flex-grow: 1;
 }
 
+.dash-studios-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+@media (max-width: 1200px) {
+    .dash-studios-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+}
+
+@media (max-width: 640px) {
+    .dash-studios-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
 .poster-tag {
     display: inline-flex;
     align-items: center;
@@ -1743,6 +1763,63 @@
 /* ══════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 72px;
+        padding: 1.25rem 0.5rem;
+        align-items: center;
+    }
+
+    .sidebar-top {
+        align-items: center;
+        width: 100%;
+    }
+
+    .sidebar-logo {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .sidebar-brand {
+        display: none;
+    }
+
+    .sidebar-nav {
+        width: 100%;
+        align-items: center;
+    }
+
+    .sidebar-link {
+        justify-content: center;
+        padding: 0.75rem;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+    }
+
+    .sidebar-link span {
+        display: none;
+    }
+
+    .sidebar-user {
+        display: none;
+    }
+
+    .dashboard-main {
+        margin-left: 72px;
+        padding: 1.5rem 1.75rem;
+    }
+
+    .dash-stats-row {
+        gap: 12px;
+    }
+
+    .dash-stat-card {
+        padding: 1rem;
+        gap: 10px;
+    }
+}
+
 @media (max-width: 768px) {
     .sidebar {
         display: none;
@@ -1751,6 +1828,11 @@
     .dashboard-main {
         margin-left: 0;
         padding: var(--space-lg);
+    }
+
+    .dash-stats-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
 
     .dashboard-header {

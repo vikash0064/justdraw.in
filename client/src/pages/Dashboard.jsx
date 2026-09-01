@@ -12,7 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import Sidebar from '../components/common/Sidebar';
 import { getWorkspaces, createWorkspace, deleteWorkspace } from '../api/workspace.api';
-import { getBoards, createBoard } from '../api/board.api';
+import { getBoards, createBoard, getRecentBoards } from '../api/board.api';
 import { getInitials, getAvatarColor, formatDate } from '../utils/helpers';
 import ExcalidrawLoader from '../components/common/ExcalidrawLoader';
 import toast from 'react-hot-toast';
@@ -299,7 +299,7 @@ export default function Dashboard() {
                                 <h2><Sparkles size={16} color="var(--violet)" /> Canvas Studios</h2>
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Pick a studio or start an infinite notes document</span>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '16px' }}>
+                            <div className="dash-studios-grid">
                                 {/* 1. Whiteboard Studio */}
                                 <motion.div
                                     className="board-poster-card"

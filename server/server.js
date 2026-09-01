@@ -42,7 +42,7 @@ const io = new Server(server, {
 
 // ── Middleware ──
 app.use(compression({ threshold: 512 })); // Compress all responses > 512 bytes
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(
     cors({
         origin: process.env.CLIENT_URL || 'http://localhost:5173',
