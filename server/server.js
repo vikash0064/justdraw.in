@@ -56,13 +56,9 @@ const passport = require('passport');
 require('./src/config/passport');
 app.use(passport.initialize());
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const fs = require('fs');
 
 // ── Health & Keep-Alive Routes ──
-app.get('/', (req, res) => {
-    res.json({ status: 'ok', message: 'justdraw backend server is active', timestamp: new Date().toISOString() });
-});
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -80,6 +76,31 @@ app.use('/api/export', exportRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/comments', commentRoutes);
+
+// ── Serve Static Frontend (Single Deployment Mode) ──
+const clientDistCandidates = [
+    path.join(__dirname, '../client/dist'),
+    path.join(__dirname, 'client/dist'),
+    path.join(__dirname, 'public'),
+    path.join(__dirname, 'dist')
+];
+
+const clientDistPath = clientDistCandidates.find(p => fs.existsSync(path.join(p, 'index.html')));
+
+if (clientDistPath) {
+    console.log(`[Frontend] Serving static frontend from: ${clientDistPath}`);
+    app.use(express.static(clientDistPath));
+    app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/health') || req.path.startsWith('/socket.io')) {
+            return next();
+        }
+        res.sendFile(path.join(clientDistPath, 'index.html'));
+    });
+} else {
+    app.get('/', (req, res) => {
+        res.json({ status: 'ok', message: 'justdraw backend server is active. Build frontend with `npm run build` in client directory to serve UI.', timestamp: new Date().toISOString() });
+    });
+}
 
 // ── Global error handler ──
 app.use((err, req, res, next) => {

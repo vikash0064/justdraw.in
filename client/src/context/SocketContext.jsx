@@ -6,8 +6,16 @@ const SocketContext = createContext(null);
 
 export const useSocket = () => useContext(SocketContext);
 
-// Derive socket server URL from VITE_API_URL (strip /api suffix)
-const SOCKET_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+// Derive socket server URL dynamically
+const getSocketURL = () => {
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '');
+    if (typeof window !== 'undefined') {
+        if (window.location.port === '5173') return 'http://localhost:5000';
+        return window.location.origin;
+    }
+    return '';
+};
+const SOCKET_URL = getSocketURL();
 
 export function SocketProvider({ children }) {
     const { user, loading } = useAuth();
