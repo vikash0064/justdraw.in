@@ -28,10 +28,10 @@ const STROKE_WIDTHS = [
 ];
 
 const ERASER_SIZES = [
-    { label: 'S', size: 10, desc: 'Precision' },
-    { label: 'M', size: 20, desc: 'Normal' },
-    { label: 'L', size: 32, desc: 'Medium' },
-    { label: 'XL', size: 48, desc: 'Wide' },
+    { label: 'Fine', size: 10, dot: 5 },
+    { label: 'Medium', size: 20, dot: 9 },
+    { label: 'Large', size: 34, dot: 14 },
+    { label: 'Wide', size: 52, dot: 20 },
 ];
 
 export default function NotesMarkupToolbar({
@@ -68,15 +68,24 @@ export default function NotesMarkupToolbar({
 
     const handleToolSelect = (selectedTool) => {
         if (isDraggingRef.current) return;
-        setTool(selectedTool);
+        
         if (selectedTool === 'eraser') {
-            setShowEraserMenu(prev => !prev);
+            if (tool === 'eraser') {
+                // Clicking while eraser is already active opens the 4-dot size menu
+                setShowEraserMenu(prev => !prev);
+            } else {
+                // Initial selection switches tool cleanly with ZERO popup
+                setTool('eraser');
+                setShowEraserMenu(false);
+            }
             setShowPalette(false);
             setShowWidths(false);
             setShowShapes(false);
             setShowPaperMenu(false);
             return;
         }
+
+        setTool(selectedTool);
         setShowEraserMenu(false);
 
         if (selectedTool === 'highlighter') {
@@ -241,55 +250,53 @@ export default function NotesMarkupToolbar({
                 </div>
             )}
 
-            {/* 3. Eraser Settings Flyout (Theme Matched) */}
+            {/* 3. Eraser 4-Dot Size Flyout (Clean Apple Notes / GoodNotes Style) */}
             {showEraserMenu && (
-                <div className="apple-eraser-flyout">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                            Eraser Size: {eraserSize}px
-                        </span>
-                        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>[ / ] keys</span>
-                    </div>
-
-                    <div className="eraser-size-grid">
+                <div className="apple-palette-flyout">
+                    <div className="apple-width-selector">
                         {ERASER_SIZES.map((opt) => (
                             <button
-                                key={opt.label}
+                                key={opt.size}
                                 type="button"
-                                className={`eraser-size-btn ${eraserSize === opt.size ? 'active' : ''}`}
-                                onClick={() => setEraserSize && setEraserSize(opt.size)}
-                                title={`${opt.desc} (${opt.size}px)`}
+                                className={`apple-width-dot ${eraserSize === opt.size ? 'active' : ''}`}
+                                onClick={() => {
+                                    setEraserSize && setEraserSize(opt.size);
+                                    setShowEraserMenu(false);
+                                }}
+                                title={`Eraser ${opt.label} (${opt.size}px)`}
                             >
-                                {opt.label}
+                                <span
+                                    style={{
+                                        width: opt.dot,
+                                        height: opt.dot,
+                                        borderRadius: '50%',
+                                        backgroundColor: '#94a3b8',
+                                        display: 'inline-block',
+                                        boxShadow: eraserSize === opt.size ? '0 0 8px rgba(245, 158, 11, 0.7)' : 'none',
+                                    }}
+                                />
                             </button>
                         ))}
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 1 }}>
-                        <input
-                            type="range"
-                            min="6"
-                            max="54"
-                            value={eraserSize}
-                            onChange={(e) => setEraserSize && setEraserSize(Number(e.target.value))}
-                            className="eraser-range-input"
-                        />
-                    </div>
-
                     {onClearPage && (
-                        <button
-                            type="button"
-                            className="exc-clear-strokes-btn"
-                            onClick={() => {
-                                if (window.confirm('Clear all drawings on this page?')) {
-                                    onClearPage();
-                                    setShowEraserMenu(false);
-                                }
-                            }}
-                            title="Clear all strokes on this page"
-                        >
-                            <Trash2 size={11} /> Clear Page Strokes
-                        </button>
+                        <>
+                            <div className="apple-dock-divider" style={{ height: '20px' }} />
+                            <button
+                                type="button"
+                                className="apple-tool-btn"
+                                style={{ width: '32px', height: '32px', color: '#f87171' }}
+                                onClick={() => {
+                                    if (window.confirm('Clear all drawings on this page?')) {
+                                        onClearPage();
+                                        setShowEraserMenu(false);
+                                    }
+                                }}
+                                title="Clear all strokes on this page"
+                            >
+                                <Trash2 size={15} />
+                            </button>
+                        </>
                     )}
                 </div>
             )}
@@ -409,25 +416,24 @@ export default function NotesMarkupToolbar({
                     />
                 </button>
 
-                {/* 4. Eraser (Click to toggle size slider & flyout) */}
+                {/* 4. Eraser (Click to select; tap again while active for 4-dot size menu) */}
                 <button
                     className={`apple-tool-btn ${tool === 'eraser' ? 'active' : ''}`}
                     onClick={() => handleToolSelect('eraser')}
-                    title={`Eraser (${eraserSize}px) — Click to adjust size`}
+                    title={`Eraser (${eraserSize}px) — Tap again to choose size`}
                 >
                     <Eraser size={15} />
                     {tool === 'eraser' && (
                         <span
                             style={{
                                 position: 'absolute',
-                                bottom: 1,
-                                fontSize: '7px',
-                                fontWeight: 700,
-                                color: '#f59e0b'
+                                bottom: 2,
+                                width: 4,
+                                height: 4,
+                                borderRadius: '50%',
+                                backgroundColor: '#f59e0b',
                             }}
-                        >
-                            {eraserSize}
-                        </span>
+                        />
                     )}
                 </button>
 
