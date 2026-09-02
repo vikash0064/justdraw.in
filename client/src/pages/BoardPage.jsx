@@ -506,6 +506,8 @@ export default function BoardPage() {
     const historyRef = useRef([]);
     const linesRef = useRef([]);
     const shapesRef = useRef([]);
+    const exportPDFRef = useRef(null);
+    const saveBoardJSONRef = useRef(null);
 
     // Keep refs in sync with state
     useEffect(() => { linesRef.current = lines; }, [lines]);
@@ -768,6 +770,7 @@ export default function BoardPage() {
         URL.revokeObjectURL(url);
         toast.success('Board saved as JSON');
     };
+    saveBoardJSONRef.current = saveBoardJSON;
 
     const loadBoardJSON = (e) => {
         const file = e.target.files?.[0];
@@ -2033,17 +2036,17 @@ export default function BoardPage() {
             }
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') { e.preventDefault(); duplicateSelected(); }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveBoardJSON(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveBoardJSONRef.current?.(); }
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
                 e.preventDefault();
                 setSelectedIds(new Set(shapes.map(s => s.id)));
             }
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') { e.preventDefault(); exportPDF(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') { e.preventDefault(); exportPDFRef.current?.(); }
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'h') { e.preventDefault(); navigate('/dashboard'); }
         };
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
-    }, [selectedIds, shapes, editingERShape, editingText, deleteSelected, duplicateSelected, undo, redo, saveBoardJSON, exportPDF, navigate]);
+    }, [selectedIds, shapes, editingERShape, editingText, deleteSelected, duplicateSelected, undo, redo, navigate]);
 
     // ── BUG FIX 1: Page switching — save current to ref-map, load new from ref-map ──
     const switchPage = useCallback(async (pageId, pageObj) => {
@@ -2544,6 +2547,7 @@ export default function BoardPage() {
         pdf.save(`${board?.title || 'board'}.pdf`);
         toast.success('PDF exported!');
     };
+    exportPDFRef.current = exportPDF;
 
     const copyShareLink = () => {
         const joinLink = `${window.location.origin}/join/${boardId}`;
