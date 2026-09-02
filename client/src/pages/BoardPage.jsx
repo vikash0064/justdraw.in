@@ -1380,6 +1380,7 @@ export default function BoardPage() {
                 socket?.emit('draw:start', { boardId, pageId: activePageId, stroke: newLine });
             }
         } else if (tool === 'rect' || tool === 'frame') {
+            const initialFill = tool === 'frame' ? 'transparent' : ((fillStyle === 'cross-hatch' || fillStyle === 'hachure') && bgColor === 'transparent' ? color : bgColor);
             setDrawingShape({
                 id: genId(),
                 type: tool,
@@ -1388,7 +1389,7 @@ export default function BoardPage() {
                 width: 0,
                 height: 0,
                 label: tool === 'frame' ? 'Frame' : undefined,
-                fill: tool === 'frame' ? 'transparent' : bgColor,
+                fill: initialFill,
                 stroke: tool === 'frame' ? '#6366f1' : color,
                 strokeWidth: brushSize,
                 strokeStyle: tool === 'frame' ? 'dashed' : strokeStyle,
@@ -1399,10 +1400,12 @@ export default function BoardPage() {
             });
             setIsDrawing(true);
         } else if (tool === 'circle') {
-            setDrawingShape({ id: genId(), type: 'circle', x: pos.x, y: pos.y, radius: 0, fill: bgColor, stroke: color, strokeWidth: brushSize, strokeStyle, fillStyle, sloppiness, edges, opacity: opacity / 100 });
+            const initialFill = (fillStyle === 'cross-hatch' || fillStyle === 'hachure') && bgColor === 'transparent' ? color : bgColor;
+            setDrawingShape({ id: genId(), type: 'circle', x: pos.x, y: pos.y, radius: 0, fill: initialFill, stroke: color, strokeWidth: brushSize, strokeStyle, fillStyle, sloppiness, edges, opacity: opacity / 100 });
             setIsDrawing(true);
         } else if (tool === 'diamond') {
-            setDrawingShape({ id: genId(), type: 'diamond', x: pos.x, y: pos.y, width: 0, height: 0, fill: bgColor, stroke: color, strokeWidth: brushSize, strokeStyle, fillStyle, sloppiness, edges, opacity: opacity / 100 });
+            const initialFill = (fillStyle === 'cross-hatch' || fillStyle === 'hachure') && bgColor === 'transparent' ? color : bgColor;
+            setDrawingShape({ id: genId(), type: 'diamond', x: pos.x, y: pos.y, width: 0, height: 0, fill: initialFill, stroke: color, strokeWidth: brushSize, strokeStyle, fillStyle, sloppiness, edges, opacity: opacity / 100 });
             setIsDrawing(true);
         } else if (tool === 'arrow' || tool === 'line') {
             setDrawingShape({
@@ -5781,15 +5784,19 @@ function RoughShape({ shape, isSelected, tool, onClick, onTap, onDragEnd, onTran
         const sloppiness = shape.sloppiness || 'artist';
         const roughness = sloppiness === 'architect' ? 0.2 : sloppiness === 'cartoonist' ? 2.5 : 1.2;
 
+        const isCrossHatch = fillStyle === 'cross-hatch';
+        const isHachure = fillStyle === 'hachure';
+
         const options = {
             stroke,
             strokeWidth: isSelected ? strokeWidth + 1 : strokeWidth,
             fill,
-            fillStyle: fillStyle === 'cross-hatch' ? 'cross-hatch' : fillStyle === 'hachure' ? 'hachure' : 'solid',
+            fillStyle: isCrossHatch ? 'cross-hatch' : isHachure ? 'hachure' : 'solid',
             roughness,
             strokeLineDash: strokeStyle === 'dashed' ? [12, 8] : strokeStyle === 'dotted' ? [3, 6] : undefined,
-            hachureGap: 6,
-            fillWeight: Math.max(1, strokeWidth / 1.5),
+            hachureGap: isCrossHatch ? 5 : 6, // Excalidraw dense net spacing
+            hachureAngle: isCrossHatch ? 60 : -41, // Excalidraw 60-degree isometric criss-cross net
+            fillWeight: Math.max(1, strokeWidth / 2),
             bowing: sloppiness === 'cartoonist' ? 2 : 1,
             seed: shape.id ? shape.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 12345
         };
