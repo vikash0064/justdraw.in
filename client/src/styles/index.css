@@ -189,6 +189,20 @@ body {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img, a, button {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+button, a, input, select, textarea, [role="button"] {
+  touch-action: manipulation;
 }
 
 #root {

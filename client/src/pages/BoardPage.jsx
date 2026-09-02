@@ -2026,14 +2026,24 @@ export default function BoardPage() {
                 if (selectedIds.size > 0) { e.preventDefault(); deleteSelected(); }
             }
             if (e.key === 'Escape') setSelectedIds(new Set());
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'd') { e.preventDefault(); duplicateSelected(); }
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'h' || e.key === 'H')) { e.preventDefault(); navigate('/dashboard'); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+                if (e.shiftKey) redo();
+                else undo();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') { e.preventDefault(); duplicateSelected(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveBoardJSON(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+                e.preventDefault();
+                setSelectedIds(new Set(shapes.map(s => s.id)));
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') { e.preventDefault(); exportPDF(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'h') { e.preventDefault(); navigate('/dashboard'); }
         };
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
-    }, [selectedIds, editingERShape, editingText, deleteSelected, duplicateSelected, undo, redo, board?.type]);
+    }, [selectedIds, shapes, editingERShape, editingText, deleteSelected, duplicateSelected, undo, redo, saveBoardJSON, exportPDF, navigate]);
 
     // ── BUG FIX 1: Page switching — save current to ref-map, load new from ref-map ──
     const switchPage = useCallback(async (pageId, pageObj) => {
@@ -2782,6 +2792,7 @@ export default function BoardPage() {
             {/* ══ CANVAS AREA ══ */}
             <div
                 className={`exc-canvas-area ${isNotesMode ? 'bg-notes-board' : isArchMode ? 'bg-architecture' : isERMode ? 'bg-er-diagram' : 'bg-whiteboard'}`}
+                onContextMenu={(e) => e.preventDefault()}
                 style={{
                     backgroundColor: canvasBg,
                     left: isArchMode && isArchLibOpen ? 300 : 0,
