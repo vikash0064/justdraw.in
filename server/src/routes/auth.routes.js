@@ -67,7 +67,39 @@ router.get(
             }
         }
 
-        res.redirect(`${clientUrl}/?token=${token}`);
+        // Return clean auto-closing bridge script for popups (PWA friendly) + fallback redirect for standard windows
+        res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Authenticating with justdraw...</title>
+  <style>
+    body { background: #0c0d14; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .loader { text-align: center; }
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.15); border-top-color: #6366f1; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="loader">
+    <div class="spinner"></div>
+    <div style="font-size: 15px; font-weight: 600;">Connecting to justdraw...</div>
+  </div>
+  <script>
+    const token = "${token}";
+    if (window.opener && window.opener !== window) {
+      try {
+        window.opener.postMessage({ type: 'JUSTDRAW_GOOGLE_AUTH_TOKEN', token: token }, '*');
+        setTimeout(() => window.close(), 150);
+      } catch (e) {
+        window.location.href = "${clientUrl}/?token=" + token;
+      }
+    } else {
+      window.location.href = "${clientUrl}/?token=" + token;
+    }
+  </script>
+</body>
+</html>`);
     }
 );
 

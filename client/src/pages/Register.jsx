@@ -17,9 +17,28 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { register } = useAuth();
+  const { register, loginWithToken } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+
+  // Listen for Google Auth token message from popup window
+  useEffect(() => {
+    const handleAuthMessage = async (e) => {
+      if (e.data && e.data.type === 'JUSTDRAW_GOOGLE_AUTH_TOKEN' && e.data.token) {
+        setLoading(true);
+        try {
+          await loginWithToken(e.data.token);
+          navigate('/dashboard');
+        } catch {
+          toast.error('Google login failed, please try again');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    window.addEventListener('message', handleAuthMessage);
+    return () => window.removeEventListener('message', handleAuthMessage);
+  }, [loginWithToken, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,7 +63,23 @@ export default function Register() {
   const handleGoogleLogin = () => {
     const apiUrl = getApiBaseUrl();
     const returnTo = encodeURIComponent(window.location.origin);
-    window.location.href = `${apiUrl}/api/auth/google?return_to=${returnTo}&t=${Date.now()}`;
+    const authUrl = `${apiUrl}/api/auth/google?return_to=${returnTo}&t=${Date.now()}`;
+
+    // Open in a focused popup so PWA main window never navigates away and never shows out-of-scope URL bar
+    const width = 500;
+    const height = 620;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    const popup = window.open(
+      authUrl,
+      'GoogleAuthPopup',
+      `width=${width},height=${height},left=${left},top=${top},status=no,menubar=no,toolbar=no`
+    );
+
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      // Fallback if popup blocked
+      window.location.href = authUrl;
+    }
   };
 
   const handleSocialClick = (provider) => {
