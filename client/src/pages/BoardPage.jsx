@@ -2226,17 +2226,210 @@ export default function BoardPage() {
         return () => window.removeEventListener('paste', handlePaste);
     }, [editingText, editingERShape, stagePos, stageScale, stageSize, activePageId]);
 
+    // ── Dedicated High-Res Notes Page Renderer (Full Bleed, Exact A4, No Margins/Badges) ──
+    const renderNotesPageToCanvas = useCallback((ctx, pIdx, pageY) => {
+        const width = 1600;
+        const height = 2262;
+
+        // 1. Clean white paper sheet
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+
+        // 2. Paper Pattern (Ruled lined, Dots, Grid, or Blank)
+        if (paperPattern === 'lined') {
+            // Margin vertical red line
+            ctx.strokeStyle = '#fca5a5';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(68 * 2, 0);
+            ctx.lineTo(68 * 2, height);
+            ctx.stroke();
+
+            // Horizontal ruled lines (33 lines matching canvas)
+            ctx.strokeStyle = 'rgba(203, 213, 225, 0.65)';
+            ctx.lineWidth = 2;
+            for (let rIdx = 0; rIdx < 33; rIdx++) {
+                const y = (64 + rIdx * 32) * 2;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        } else if (paperPattern === 'dots') {
+            ctx.fillStyle = '#94a3b8';
+            for (let cIdx = 0; cIdx < 27; cIdx++) {
+                for (let rIdx = 0; rIdx < 39; rIdx++) {
+                    ctx.beginPath();
+                    ctx.arc((28 + cIdx * 28) * 2, (28 + rIdx * 28) * 2, 2.4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        } else if (paperPattern === 'grid') {
+            ctx.strokeStyle = 'rgba(203, 213, 225, 0.55)';
+            ctx.lineWidth = 2;
+            for (let cIdx = 0; cIdx < 28; cIdx++) {
+                const x = (20 + cIdx * 28) * 2;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let rIdx = 0; rIdx < 40; rIdx++) {
+                const y = (20 + rIdx * 28) * 2;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+
+        // 3. Clip drawing to exact paper bounds (so strokes outside don't leak)
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, width, height);
+        ctx.clip();
+
+        // 4. Draw Shapes on this page
+        const pageBottom = pageY + 1131;
+        shapes.forEach(s => {
+            if (s.x !== undefined && s.y !== undefined) {
+                if (s.y + (s.height || 50) >= pageY && s.y <= pageBottom) {
+                    const relX = (s.x - notesPageX) * 2;
+                    const relY = (s.y - pageY) * 2;
+                    const w = (s.width || 100) * 2;
+                    const h = (s.height || 60) * 2;
+
+                    ctx.save();
+                    if (s.type === 'rect') {
+                        ctx.strokeStyle = s.stroke || '#0f172a';
+                        ctx.lineWidth = (s.strokeWidth || 2) * 2;
+                        ctx.fillStyle = s.fill && s.fill !== 'transparent' ? s.fill : 'transparent';
+                        if (s.fill && s.fill !== 'transparent') ctx.fillRect(relX, relY, w, h);
+                        ctx.strokeRect(relX, relY, w, h);
+                    } else if (s.type === 'circle') {
+                        ctx.strokeStyle = s.stroke || '#0f172a';
+                        ctx.lineWidth = (s.strokeWidth || 2) * 2;
+                        ctx.fillStyle = s.fill && s.fill !== 'transparent' ? s.fill : 'transparent';
+                        ctx.beginPath();
+                        ctx.ellipse(relX + w / 2, relY + h / 2, Math.abs(w / 2), Math.abs(h / 2), 0, 0, Math.PI * 2);
+                        if (s.fill && s.fill !== 'transparent') ctx.fill();
+                        ctx.stroke();
+                    } else if (s.type === 'sticky') {
+                        ctx.fillStyle = s.fill || '#fef08a';
+                        ctx.shadowColor = 'rgba(0,0,0,0.12)';
+                        ctx.shadowBlur = 8;
+                        ctx.fillRect(relX, relY, w, h);
+                        ctx.shadowColor = 'transparent';
+                        ctx.fillStyle = s.color || '#0f172a';
+                        ctx.font = `${(s.fontSize || 16) * 2}px Inter, sans-serif`;
+                        ctx.fillText(s.text || s.label || '', relX + 16, relY + (s.fontSize || 16) * 2 + 10);
+                    } else if (s.type === 'text') {
+                        ctx.fillStyle = s.fill || s.color || '#0f172a';
+                        ctx.font = `${(s.fontSize || 18) * 2}px ${s.fontFamily || 'Inter, sans-serif'}`;
+                        ctx.fillText(s.text || s.label || '', relX, relY + (s.fontSize || 18) * 2);
+                    }
+                    ctx.restore();
+                }
+            }
+        });
+
+        // 5. Draw Freehand Ink Strokes
+        lines.forEach(line => {
+            if (!line.points || line.points.length < 2) return;
+            const pts = line.points;
+
+            // Check if stroke touches this page
+            let touchesPage = false;
+            for (let i = 1; i < pts.length; i += 2) {
+                if (pts[i] >= pageY - 30 && pts[i] <= pageBottom + 30) {
+                    touchesPage = true;
+                    break;
+                }
+            }
+            if (!touchesPage) return;
+
+            ctx.save();
+            ctx.strokeStyle = line.color || '#0f172a';
+            ctx.fillStyle = line.color || '#0f172a';
+            ctx.lineWidth = Math.max(1, (line.width || 4) * 2);
+            ctx.lineCap = line.tool === 'highlighter' ? 'square' : 'round';
+            ctx.lineJoin = 'round';
+            ctx.globalAlpha = line.tool === 'highlighter' ? 0.36 : (line.opacity !== undefined ? line.opacity : (line.tool === 'pencil' ? 0.92 : 1));
+
+            if (line.tool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+            } else if (line.tool === 'highlighter') {
+                ctx.globalCompositeOperation = 'multiply';
+            } else {
+                ctx.globalCompositeOperation = 'source-over';
+            }
+
+            const startX = (pts[0] - notesPageX) * 2;
+            const startY = (pts[1] - pageY) * 2;
+
+            if (pts.length === 2) {
+                ctx.beginPath();
+                ctx.arc(startX, startY, ctx.lineWidth / 2, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (pts.length === 4) {
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo((pts[2] - notesPageX) * 2, (pts[3] - pageY) * 2);
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                for (let i = 2; i < pts.length - 2; i += 2) {
+                    const xc = ((pts[i] + pts[i + 2]) / 2 - notesPageX) * 2;
+                    const yc = ((pts[i + 1] + pts[i + 3]) / 2 - pageY) * 2;
+                    const pX = (pts[i] - notesPageX) * 2;
+                    const pY = (pts[i + 1] - pageY) * 2;
+                    ctx.quadraticCurveTo(pX, pY, xc, yc);
+                }
+                const lastX = (pts[pts.length - 2] - notesPageX) * 2;
+                const lastY = (pts[pts.length - 1] - pageY) * 2;
+                ctx.lineTo(lastX, lastY);
+                ctx.stroke();
+            }
+            ctx.restore();
+        });
+
+        ctx.restore(); // Restore clip
+    }, [paperPattern, shapes, lines, notesPageX]);
+
     const exportToA4PDF = async () => {
-        const stage = stageRef.current;
-        if (!stage) return;
-        const uri = stage.toDataURL({ pixelRatio: 2 });
-        const { default: jsPDF } = await import('jspdf');
-        const pdf = new jsPDF('portrait', 'pt', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        pdf.addImage(uri, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`${board?.title || 'Notes'}.pdf`);
-        toast.success('A4 Notes PDF exported!');
+        toast.loading('Generating premium A4 Notes PDF...', { id: 'notes-pdf-gen' });
+        try {
+            const { default: jsPDF } = await import('jspdf');
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
+            const pagesToExport = pages.length > 0 ? pages : [{ _id: activePageId || 'page_1', title: 'Page 1' }];
+
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = 1600;
+            offCanvas.height = 2262;
+            const ctx = offCanvas.getContext('2d');
+
+            for (let pIdx = 0; pIdx < pagesToExport.length; pIdx++) {
+                if (pIdx > 0) {
+                    pdf.addPage('a4', 'portrait');
+                }
+                const pageY = 60 + pIdx * 1179;
+                renderNotesPageToCanvas(ctx, pIdx, pageY);
+                const dataUrl = offCanvas.toDataURL('image/jpeg', 0.95);
+                pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+            }
+
+            pdf.save(`${board?.title || 'Notes'}.pdf`);
+            toast.dismiss('notes-pdf-gen');
+            toast.success('Premium AS-IT-IS A4 Notes PDF exported!');
+        } catch (err) {
+            console.error('PDF Export Error:', err);
+            toast.dismiss('notes-pdf-gen');
+            toast.error('PDF export failed: ' + err.message);
+        }
     };
 
     // ── Autosave (updates ref-map too) ──
@@ -2302,6 +2495,22 @@ export default function BoardPage() {
 
     // ── Export ──
     const exportPNG = () => {
+        if (isNotesMode) {
+            const pIdx = Math.max(0, pages.findIndex(p => p._id === activePageId));
+            const pageY = 60 + pIdx * 1179;
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = 1600;
+            offCanvas.height = 2262;
+            const ctx = offCanvas.getContext('2d');
+            renderNotesPageToCanvas(ctx, pIdx, pageY);
+            const uri = offCanvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `${board?.title || 'Notes'}_Page_${pIdx + 1}.png`;
+            link.href = uri;
+            link.click();
+            toast.success(`Page ${pIdx + 1} PNG exported!`);
+            return;
+        }
         const stage = stageRef.current;
         if (!stage) return;
         const uri = stage.toDataURL({ pixelRatio: 2 });
@@ -2313,6 +2522,9 @@ export default function BoardPage() {
     };
 
     const exportPDF = async () => {
+        if (isNotesMode) {
+            return exportToA4PDF();
+        }
         const stage = stageRef.current;
         if (!stage) return;
         const uri = stage.toDataURL({ pixelRatio: 2 });
