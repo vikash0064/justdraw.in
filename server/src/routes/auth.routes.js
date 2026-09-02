@@ -33,7 +33,15 @@ router.get('/google', (req, res, next) => {
             </div>
         `);
     }
-    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+
+    // Preserve where user came from so they don't get stuck on localhost after login
+    const returnTo = req.query.return_to || req.headers.referer || '';
+    const state = returnTo ? Buffer.from(returnTo).toString('base64') : undefined;
+
+    passport.authenticate('google', { 
+        scope: ['profile', 'email'],
+        state
+    })(req, res, next);
 });
 
 router.get(
@@ -43,8 +51,22 @@ router.get(
         // Successful authentication, generate JWT
         const token = req.user.generateToken();
 
-        // Redirect to frontend with token in URL
-        const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+        // Default redirect destination
+        let clientUrl = process.env.CLIENT_URL || 'https://justdraw-in.onrender.com';
+
+        // If state was preserved, return user to their origin
+        if (req.query.state) {
+            try {
+                const decoded = Buffer.from(req.query.state, 'base64').toString('utf-8');
+                if (decoded.startsWith('http://') || decoded.startsWith('https://')) {
+                    const parsed = new URL(decoded);
+                    clientUrl = parsed.origin;
+                }
+            } catch (e) {
+                console.error('Error decoding OAuth state:', e);
+            }
+        }
+
         res.redirect(`${clientUrl}/?token=${token}`);
     }
 );

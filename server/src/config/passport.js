@@ -2,12 +2,22 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 
+const getCallbackURL = () => {
+    if (process.env.GOOGLE_CALLBACK_URL && process.env.GOOGLE_CALLBACK_URL.trim() !== '') {
+        return process.env.GOOGLE_CALLBACK_URL.trim();
+    }
+    if (process.env.RENDER || process.env.NODE_ENV === 'production') {
+        return 'https://justdraw-in.onrender.com/api/auth/google/callback';
+    }
+    return 'http://localhost:5000/api/auth/google/callback';
+};
+
 passport.use(
     new GoogleStrategy(
         {
             clientID: (process.env.GOOGLE_CLIENT_ID || 'MISSING_CLIENT_ID').trim(),
             clientSecret: (process.env.GOOGLE_CLIENT_SECRET || 'MISSING_CLIENT_SECRET').trim(),
-            callbackURL: (process.env.GOOGLE_CALLBACK_URL || `${process.env.CLIENT_URL || 'http://localhost:5000'}/api/auth/google/callback`).trim(),
+            callbackURL: getCallbackURL(),
             proxy: true,
         },
         async (accessToken, refreshToken, profile, done) => {

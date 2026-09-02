@@ -42,7 +42,8 @@ export default function Register() {
 
   const handleGoogleLogin = () => {
     const apiUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
-    window.location.href = `${apiUrl}/api/auth/google`;
+    const returnTo = encodeURIComponent(window.location.origin);
+    window.location.href = `${apiUrl}/api/auth/google?return_to=${returnTo}&t=${Date.now()}`;
   };
 
   const handleSocialClick = (provider) => {
