@@ -2467,6 +2467,14 @@ export default function BoardPage() {
     // Stroke color options (Excalidraw palette top picks)
     const strokeColors = ['#ffffff', '#e03131', '#2f9e44', '#1971c2', '#f08c00'];
     const bgColors = ['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99'];
+    const PALETTE_COLORS = [
+        '#ffffff', '#f8f9fa', '#e9ecef', '#dee2e6', '#ced4da',
+        '#adb5bd', '#6c757d', '#495057', '#343a40', '#212529',
+        '#ffc9c9', '#ff8787', '#ff6b6b', '#fa5252', '#f03e3e',
+        '#d6336c', '#ae3ec9', '#7048e8', '#4263eb', '#1c7ed6',
+        '#1098ad', '#0ca678', '#37b24d', '#74b816', '#f59f00',
+        '#f76707'
+    ];
 
     return (
         <div className={`excalidraw-board${theme === 'light' ? ' light-mode' : ''}`}>
@@ -3529,9 +3537,9 @@ export default function BoardPage() {
             </div>
 
             {/* ══ TOP BAR ══ */}
-            <div className="exc-topbar">
+            <div className="exc-topbar" style={{ zIndex: showMainMenu ? 120 : 50 }}>
                 {/* Left: Hamburger Main Menu + Home + Back + Board Name */}
-                <div className="exc-topbar-left" style={{ position: 'relative' }}>
+                <div className="exc-topbar-left" style={{ position: 'relative', zIndex: showMainMenu ? 125 : undefined }}>
                     <button className="exc-back-btn" onClick={() => setShowMainMenu(!showMainMenu)} data-exc-tooltip="Main Menu">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
                     </button>
@@ -3587,7 +3595,19 @@ export default function BoardPage() {
 
                     {/* Main Menu Dropdown (Excalidraw 1:1) */}
                     {showMainMenu && (
-                        <div className="dropdown-menu-container" onClick={(e) => e.stopPropagation()}>
+                        <>
+                            {/* Backdrop to close menu automatically on outside click */}
+                            <div
+                                className="dropdown-menu-backdrop"
+                                style={{
+                                    position: 'fixed',
+                                    inset: 0,
+                                    zIndex: 115,
+                                    background: 'transparent'
+                                }}
+                                onClick={() => setShowMainMenu(false)}
+                            />
+                            <div className="dropdown-menu-container" style={{ zIndex: 120 }} onClick={(e) => e.stopPropagation()}>
                             {/* Home / Dashboard */}
                             <button className="dropdown-menu-item" onClick={() => { navigate('/dashboard'); setShowMainMenu(false); }}>
                                 <div className="dropdown-menu-item__left">
@@ -3881,6 +3901,7 @@ export default function BoardPage() {
                                 </>
                             )}
                         </div>
+                        </>
                     )}
                 </div>
 
@@ -4224,7 +4245,7 @@ export default function BoardPage() {
                     ) : (
                         <div className="selected-shape-actions">
                             {/* Stroke */}
-                            <div className="exc-panel-section" style={{ position: 'relative' }} onMouseEnter={() => handlePickerMouseEnter('stroke')} onMouseLeave={handlePickerMouseLeave}>
+                            <div className="exc-panel-section" style={{ position: 'relative' }}>
                                 <h3 className="exc-panel-label" aria-hidden="true">Stroke</h3>
                                 <div role="dialog" aria-modal="true" className="color-picker-container">
                                     <div className="color-picker__top-picks" data-state="closed">
@@ -4235,7 +4256,7 @@ export default function BoardPage() {
                                                 type="button"
                                                 title={c}
                                                 style={{ '--swatch-color': c }}
-                                                onClick={() => { setColor(c); updateSelectedShapes({ stroke: c }); }}
+                                                onClick={() => { setColor(c); updateSelectedShapes({ stroke: c }); setActivePicker(null); }}
                                             >
                                                 <div className="color-picker__button-outline"></div>
                                             </button>
@@ -4244,19 +4265,68 @@ export default function BoardPage() {
                                         <button
                                             type="button"
                                             className={`color-picker__button active-color properties-trigger${activePicker === 'stroke' ? ' active' : ''}`}
-                                            title="Show stroke color picker"
-                                            style={{ '--swatch-color': color }}
+                                            title="Custom stroke color"
+                                            style={{
+                                                '--swatch-color': color,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                padding: 0
+                                            }}
                                             onClick={() => setActivePicker(activePicker === 'stroke' ? null : 'stroke')}
                                         >
-                                            <div className="color-picker__button-outline" />
+                                            <Paintbrush size={10} style={{ color: color === '#ffffff' || color === '#fff' ? '#121212' : '#ffffff' }} />
                                         </button>
                                     </div>
                                 </div>
+
+                                {/* Stroke Color Palette Popover */}
+                                {activePicker === 'stroke' && (
+                                    <>
+                                        <div
+                                            className="color-picker-backdrop"
+                                            style={{ position: 'fixed', inset: 0, zIndex: 104, background: 'transparent' }}
+                                            onClick={() => setActivePicker(null)}
+                                        />
+                                        <div className="color-picker-popup" style={{ left: 'calc(100% + 8px)', top: 0, zIndex: 105 }}>
+                                            <div className="color-picker__heading">STROKE PALETTE</div>
+                                            <div className="color-picker-content--default">
+                                                {PALETTE_COLORS.map(c => (
+                                                    <button
+                                                        key={c}
+                                                        type="button"
+                                                        className={`color-picker__button--large${color === c ? ' active' : ''}`}
+                                                        style={{ '--swatch-color': c }}
+                                                        title={c}
+                                                        onClick={() => {
+                                                            setColor(c);
+                                                            updateSelectedShapes({ stroke: c });
+                                                            setActivePicker(null);
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <div className="color-picker__divider" style={{ width: '100%', height: 1, margin: '6px 0' }} />
+                                            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, color: '#94a3b8', cursor: 'pointer' }}>
+                                                <span>Custom Color:</span>
+                                                <input
+                                                    type="color"
+                                                    value={color?.startsWith('#') ? color : '#ffffff'}
+                                                    onChange={(e) => {
+                                                        setColor(e.target.value);
+                                                        updateSelectedShapes({ stroke: e.target.value });
+                                                    }}
+                                                    style={{ width: 28, height: 20, border: 'none', background: 'transparent', cursor: 'pointer', padding: 0 }}
+                                                />
+                                            </label>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Background & Fill (Hidden for text, sticky, arrow, line) */}
                             {!(tool === 'text' || tool === 'arrow' || tool === 'line' || selectedShape?.type === 'text' || selectedShape?.type === 'sticky' || selectedShape?.type === 'arrow' || selectedShape?.type === 'line') && (
-                                <div className="exc-panel-section" style={{ position: 'relative' }} onMouseEnter={() => handlePickerMouseEnter('background')} onMouseLeave={handlePickerMouseLeave}>
+                                <div className="exc-panel-section" style={{ position: 'relative' }}>
                                     <h3 className="exc-panel-label" aria-hidden="true">Background</h3>
                                     <div role="dialog" aria-modal="true" className="color-picker-container">
                                         <div className="color-picker__top-picks" data-state="closed">
@@ -4267,7 +4337,7 @@ export default function BoardPage() {
                                                     type="button"
                                                     title={c}
                                                     style={{ '--swatch-color': c === 'transparent' ? '#ededed00' : c }}
-                                                    onClick={() => { setBgColor(c); updateSelectedShapes({ fill: c }); }}
+                                                    onClick={() => { setBgColor(c); updateSelectedShapes({ fill: c }); setActivePicker(null); }}
                                                 >
                                                     <div className="color-picker__button-outline"></div>
                                                 </button>
@@ -4276,14 +4346,74 @@ export default function BoardPage() {
                                             <button
                                                 type="button"
                                                 className={`color-picker__button active-color properties-trigger${bgColor === 'transparent' ? ' is-transparent' : ''}${activePicker === 'background' ? ' active' : ''}`}
-                                                title="Show background color picker"
-                                                style={{ '--swatch-color': bgColor === 'transparent' ? '#ededed00' : bgColor }}
+                                                title="Custom background color"
+                                                style={{
+                                                    '--swatch-color': bgColor === 'transparent' ? '#ededed00' : bgColor,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    padding: 0
+                                                }}
                                                 onClick={() => setActivePicker(activePicker === 'background' ? null : 'background')}
                                             >
-                                                <div className="color-picker__button-outline" />
+                                                <Paintbrush size={10} style={{ color: bgColor === '#ffffff' || bgColor === '#fff' ? '#121212' : '#ffffff' }} />
                                             </button>
                                         </div>
                                     </div>
+
+                                    {/* Background Color Palette Popover */}
+                                    {activePicker === 'background' && (
+                                        <>
+                                            <div
+                                                className="color-picker-backdrop"
+                                                style={{ position: 'fixed', inset: 0, zIndex: 104, background: 'transparent' }}
+                                                onClick={() => setActivePicker(null)}
+                                            />
+                                            <div className="color-picker-popup" style={{ left: 'calc(100% + 8px)', top: 0, zIndex: 105 }}>
+                                                <div className="color-picker__heading">BACKGROUND PALETTE</div>
+                                                <div className="color-picker-content--default">
+                                                    <button
+                                                        type="button"
+                                                        className={`color-picker__button--large is-transparent has-outline${bgColor === 'transparent' ? ' active' : ''}`}
+                                                        style={{ '--swatch-color': 'transparent' }}
+                                                        title="Transparent"
+                                                        onClick={() => {
+                                                            setBgColor('transparent');
+                                                            updateSelectedShapes({ fill: 'transparent' });
+                                                            setActivePicker(null);
+                                                        }}
+                                                    />
+                                                    {PALETTE_COLORS.slice(0, 24).map(c => (
+                                                        <button
+                                                            key={c}
+                                                            type="button"
+                                                            className={`color-picker__button--large${bgColor === c ? ' active' : ''}`}
+                                                            style={{ '--swatch-color': c }}
+                                                            title={c}
+                                                            onClick={() => {
+                                                                setBgColor(c);
+                                                                updateSelectedShapes({ fill: c });
+                                                                setActivePicker(null);
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                                <div className="color-picker__divider" style={{ width: '100%', height: 1, margin: '6px 0' }} />
+                                                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, color: '#94a3b8', cursor: 'pointer' }}>
+                                                    <span>Custom Color:</span>
+                                                    <input
+                                                        type="color"
+                                                        value={bgColor?.startsWith('#') ? bgColor : '#1e1e2d'}
+                                                        onChange={(e) => {
+                                                            setBgColor(e.target.value);
+                                                            updateSelectedShapes({ fill: e.target.value });
+                                                        }}
+                                                        style={{ width: 28, height: 20, border: 'none', background: 'transparent', cursor: 'pointer', padding: 0 }}
+                                                    />
+                                                </label>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             )}
 

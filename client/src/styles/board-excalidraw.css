@@ -769,19 +769,22 @@
 .color-picker__top-picks {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex-wrap: nowrap !important;
   width: 100%;
 }
 
 .color-picker__button {
-  width: 20px; height: 20px;
+  width: 24px; height: 24px;
   flex-shrink: 0;
-  border-radius: 5px;
+  border-radius: 6px;
   border: 1px solid var(--exc-border, rgba(255, 255, 255, 0.18));
   background: var(--swatch-color);
   cursor: pointer;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .color-picker__button:hover { transform: scale(1.12); z-index: 2; }
@@ -791,9 +794,9 @@
 
 .color-picker__divider {
   width: 1px;
-  height: 15px;
+  height: 18px;
   background: var(--exc-border, rgba(255, 255, 255, 0.18));
-  margin: 0 1px;
+  margin: 0 2px;
   align-self: center;
 }
 
