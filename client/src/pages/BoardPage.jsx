@@ -14,7 +14,7 @@ import {
     ShieldCheck, Sliders, Library, PanelRight, Pin, Radio, FolderKanban, Search,
     Folder, Zap, LogIn, LogOut, Globe, ChevronRight, Monitor, Presentation,
     AlignLeft, AlignCenter, AlignRight, ArrowDownToLine, ArrowDown, ArrowUp, ArrowUpToLine, Home,
-    FileText, ChevronDown
+    FileText, ChevronDown, Hand
 } from 'lucide-react';
 import { getBoard, getBoards } from '../api/board.api';
 import { getPages, createPage, updatePage, deletePage } from '../api/page.api';
@@ -4038,7 +4038,7 @@ export default function BoardPage() {
                         }}
                         title={palmRejection ? "Palm Rejection is ON: Rest hand safely (Stylus only). Click to allow finger drawing." : "Palm Rejection is OFF: Drawing with fingers enabled. Click to reject palm touches."}
                     >
-                        <span style={{ fontSize: 13, lineHeight: 1 }}>✋</span>
+                        <Hand size={15} strokeWidth={2.2} />
                         <span className="hide-on-mobile hide-on-tablet" style={{ fontSize: 11, fontWeight: 600 }}>
                             {palmRejection ? 'Palm Safe' : 'Finger On'}
                         </span>

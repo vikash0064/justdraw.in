@@ -5,7 +5,7 @@ import {
     StickyNote, Square, Circle, Diamond, ArrowUpRight, Minus,
     Image, Palette, Undo2, Redo2, Download, FileText,
     Sliders, ChevronDown, ChevronUp, Move, Trash2, Check,
-    GripVertical, PenTool, Sparkles
+    GripVertical, PenTool, Sparkles, Hand
 } from 'lucide-react';
 
 const APPLE_COLORS = [
@@ -573,14 +573,14 @@ export default function NotesMarkupToolbar({
                     <button
                         className={`apple-tool-btn ${palmRejection ? 'active' : ''}`}
                         onClick={() => setPalmRejection(prev => !prev)}
-                        title={palmRejection ? "✋ Palm Rejection ON (Stylus only - hand resting safe). Click to allow finger drawing." : "👆 Finger Drawing ON. Click to reject palm touches."}
+                        title={palmRejection ? "Palm Rejection ON (Stylus only - hand resting safe). Click to allow finger drawing." : "Finger Drawing ON. Click to reject palm touches."}
                         style={{
                             color: palmRejection ? '#fbbf24' : '#94a3b8',
                             backgroundColor: palmRejection ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
                             borderRadius: '8px'
                         }}
                     >
-                        <span style={{ fontSize: 13, lineHeight: 1 }}>✋</span>
+                        <Hand size={15} strokeWidth={2} />
                     </button>
                 )}
 
