@@ -3974,15 +3974,6 @@ export default function BoardPage() {
                                         />
                                     )}
                                 </div>
-                                <button
-                                    type="button"
-                                    className="exc-tool-btn exc-toolbar-collapse-trigger"
-                                    onClick={() => setIsToolbarCollapsed(true)}
-                                    data-exc-tooltip="Minimize toolbar"
-                                    style={{ marginLeft: 2, color: 'var(--text-muted)' }}
-                                >
-                                    <ChevronDown size={17} />
-                                </button>
                                 <input
                                     type="file"
                                     id="image-upload-input"

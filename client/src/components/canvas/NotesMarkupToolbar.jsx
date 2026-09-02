@@ -128,11 +128,9 @@ export default function NotesMarkupToolbar({
             >
                 <div
                     className="apple-notes-minimized-pill"
-                    onDoubleClick={() => {
-                        if (!isDraggingRef.current) setIsMinimized(false);
-                    }}
-                    title="Drag to move. Double-click or click arrow (▲) to expand"
-                    style={{ cursor: 'grab', touchAction: 'none' }}
+                    onClick={() => setIsMinimized(false)}
+                    title="Click to expand Markup Tools (Drag to move)"
+                    style={{ cursor: 'pointer', touchAction: 'none' }}
                 >
                     <GripVertical size={14} color="#94a3b8" />
                     <Pencil size={15} color="#f59e0b" />
@@ -588,18 +586,6 @@ export default function NotesMarkupToolbar({
                         <Hand size={15} strokeWidth={2} />
                     </button>
                 )}
-
-                <div className="apple-dock-divider" />
-
-                {/* 16. Minimize / Close Button */}
-                <button
-                    className="apple-tool-btn"
-                    onClick={() => setIsMinimized(true)}
-                    title="Minimize Markup Dock"
-                    style={{ color: '#94a3b8' }}
-                >
-                    <ChevronDown size={14} />
-                </button>
             </div>
         </motion.div>
     );
