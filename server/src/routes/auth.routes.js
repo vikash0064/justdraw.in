@@ -17,6 +17,9 @@ router.get('/me', protect, getMe);
 
 // ── Google OAuth Routes ──
 router.get('/google', (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
         return res.status(400).send(`
             <div style="font-family: sans-serif; padding: 40px; text-align: center; background: #121214; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
