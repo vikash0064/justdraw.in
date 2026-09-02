@@ -3851,8 +3851,8 @@ export default function BoardPage() {
                     <button className="exc-back-btn" onClick={() => setShowMainMenu(!showMainMenu)} data-exc-tooltip="Main Menu">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
                     </button>
-                    <button className="exc-back-btn" onClick={() => navigate('/dashboard')} data-exc-tooltip="Home / Dashboard">
-                        <Home size={16} />
+                    <button className="exc-back-btn" onClick={() => navigate('/dashboard')} title="Back to Dashboard" aria-label="Back to Dashboard">
+                        <ArrowLeft size={16} />
                     </button>
                     <span className="exc-board-title">{board?.title || 'Board'}</span>
 

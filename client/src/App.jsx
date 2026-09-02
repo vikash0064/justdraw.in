@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import ExcalidrawLoader from './components/common/ExcalidrawLoader';
 import PWAInstallPrompt from './components/common/PWAInstallPrompt';
+import GlobalErrorBoundary from './components/common/GlobalErrorBoundary';
 
 // Lazy-load page components for ultra-fast initial bundle and routing
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -87,6 +88,31 @@ export default function App() {
       import('./pages/Dashboard');
       import('./pages/BoardPage');
     });
+
+    // Global Native App Navigation Shortcuts (PWA friendly)
+    const handleGlobalNavKey = (e) => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) {
+        return;
+      }
+
+      // Alt + LeftArrow -> Go back in history
+      if (e.altKey && e.key === 'ArrowLeft') {
+        if (window.location.pathname !== '/dashboard' && window.location.pathname !== '/') {
+          e.preventDefault();
+          window.history.back();
+        }
+      }
+
+      // Ctrl + H or Cmd + H -> Back to Dashboard
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'h') {
+        e.preventDefault();
+        window.location.href = '/dashboard';
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalNavKey);
+    return () => window.removeEventListener('keydown', handleGlobalNavKey);
   }, []);
 
   return (
@@ -94,7 +120,9 @@ export default function App() {
       <ThemeProvider>
         <AuthProvider>
           <SocketProvider>
-            <AppRoutes />
+            <GlobalErrorBoundary>
+              <AppRoutes />
+            </GlobalErrorBoundary>
             <PWAInstallPrompt />
             <Toaster
               position="top-right"
