@@ -67,14 +67,12 @@ const login = async (req, res) => {
 // @route   GET /api/auth/me
 const getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            avatar: user.avatar,
-        });
+        const user = await User.findById(req.user._id).select('_id name email role avatar').lean();
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.setHeader('Cache-Control', 'private, max-age=15, stale-while-revalidate=60');
+        res.json(user);
     } catch (error) {
         res.status(500).json({ message: 'Failed to get profile', error: error.message });
     }

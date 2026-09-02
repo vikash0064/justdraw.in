@@ -51,6 +51,7 @@ const getWorkspaces = async (req, res) => {
             boardCount: countMap[w._id.toString()] || 0,
         }));
 
+        res.setHeader('Cache-Control', 'private, max-age=5, stale-while-revalidate=30');
         res.json(enrichedWorkspaces);
     } catch (error) {
         console.error('getWorkspaces error:', error);
@@ -64,7 +65,8 @@ const getWorkspace = async (req, res) => {
     try {
         const workspace = await Workspace.findById(req.params.id)
             .populate('owner', 'name email avatar')
-            .populate('members.user', 'name email avatar');
+            .populate('members.user', 'name email avatar')
+            .lean();
 
         if (!workspace) {
             return res.status(404).json({ message: 'Workspace not found' });
@@ -78,9 +80,10 @@ const getWorkspace = async (req, res) => {
         });
 
         if (!isMember) {
-            return res.status(403).json({ message: 'Not a member of this workspace' });
+            return res.status(403).json({ message: 'Not authorized to view this workspace' });
         }
 
+        res.setHeader('Cache-Control', 'private, max-age=5, stale-while-revalidate=30');
         res.json(workspace);
     } catch (error) {
         console.error('getWorkspace error:', error);

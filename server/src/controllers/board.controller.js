@@ -75,6 +75,7 @@ const getBoards = async (req, res) => {
             });
         });
 
+        res.setHeader('Cache-Control', 'private, max-age=5, stale-while-revalidate=30');
         res.json(boards);
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch boards', error: error.message });
@@ -241,6 +242,7 @@ const getRecentBoards = async (req, res) => {
             workspaceId: b.workspace,
         }));
 
+        res.setHeader('Cache-Control', 'private, max-age=5, stale-while-revalidate=30');
         res.json(formatted);
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch recent boards', error: error.message });
