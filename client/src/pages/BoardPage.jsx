@@ -4029,13 +4029,11 @@ export default function BoardPage() {
                     <button
                         className={`exc-top-btn exc-palm-btn${palmRejection ? ' active' : ''}`}
                         onClick={() => {
-                            setPalmRejection(prev => {
-                                const next = !prev;
-                                toast(next ? '✋ Palm Rejection ON (Stylus only - hand resting is safe!)' : '👆 Finger & Stylus Drawing ON', {
-                                    icon: next ? '✋' : '👆',
-                                    duration: 2500
-                                });
-                                return next;
+                            const next = !palmRejection;
+                            setPalmRejection(next);
+                            toast(next ? '✋ Palm Rejection ON (Stylus only - hand resting is safe!)' : '👆 Finger & Stylus Drawing ON', {
+                                icon: next ? '✋' : '👆',
+                                duration: 2500
                             });
                         }}
                         title={palmRejection ? "Palm Rejection is ON: Rest hand safely (Stylus only). Click to allow finger drawing." : "Palm Rejection is OFF: Drawing with fingers enabled. Click to reject palm touches."}
