@@ -89,11 +89,29 @@ const clientDistPath = clientDistCandidates.find(p => fs.existsSync(path.join(p,
 
 if (clientDistPath) {
     console.log(`[Frontend] Serving static frontend from: ${clientDistPath}`);
+    
+    // 1. Serve hashed asset bundles with long cache
+    app.use('/assets', express.static(path.join(clientDistPath, 'assets'), {
+        maxAge: '1y',
+        immutable: true
+    }));
+
+    // 2. Return 404 for missing assets (never fall back to index.html for .js/.css)
+    app.use('/assets/*', (req, res) => {
+        res.status(404).type('text/plain').send('Asset not found');
+    });
+
+    // 3. Static assets in root (favicon, logos, etc.)
     app.use(express.static(clientDistPath));
+
+    // 4. SPA fallback: Serve index.html with NO-CACHE headers to always fetch latest version
     app.get('*', (req, res, next) => {
-        if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/health') || req.path.startsWith('/socket.io')) {
+        if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/health') || req.path.startsWith('/socket.io') || req.path.startsWith('/assets')) {
             return next();
         }
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.sendFile(path.join(clientDistPath, 'index.html'));
     });
 } else {

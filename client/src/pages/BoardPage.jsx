@@ -29,15 +29,32 @@ import CommentsOverlay from '../components/canvas/CommentsOverlay';
 import MoreToolsMenu from '../components/canvas/MoreToolsMenu';
 import LaserPointerOverlay from '../components/canvas/LaserPointerOverlay';
 
-// Lazy-loaded heavy components for ultra-fast initial board render
-const EREditModal = lazy(() => import('../components/canvas/EREditModal'));
-const VideoCall = lazy(() => import('../components/canvas/VideoCall'));
-const AIChatPanel = lazy(() => import('../components/canvas/AIChatPanel'));
-const PresentationMode = lazy(() => import('../components/canvas/PresentationMode'));
-const WireframeToCodeModal = lazy(() => import('../components/canvas/WireframeToCodeModal'));
-const MermaidModal = lazy(() => import('../components/canvas/MermaidModal'));
-const AIDiagramModal = lazy(() => import('../components/canvas/AIDiagramModal'));
-const WebEmbedModal = lazy(() => import('../components/canvas/WebEmbedModal'));
+// Helper for lazy loading with automatic retry/reload on new deployment
+const lazyWithRetry = (componentImport) =>
+    lazy(async () => {
+        try {
+            return await componentImport();
+        } catch (error) {
+            const hasReloaded = sessionStorage.getItem('chunk_reload_lock');
+            if (!hasReloaded) {
+                sessionStorage.setItem('chunk_reload_lock', '1');
+                console.warn('[BoardPage] Stale chunk detected due to new deploy. Reloading page...');
+                window.location.reload();
+                return new Promise(() => {}); // pause execution until page reloads
+            }
+            throw error;
+        }
+    });
+
+// Lazy-loaded heavy components for ultra-fast initial board render with deploy auto-recovery
+const EREditModal = lazyWithRetry(() => import('../components/canvas/EREditModal'));
+const VideoCall = lazyWithRetry(() => import('../components/canvas/VideoCall'));
+const AIChatPanel = lazyWithRetry(() => import('../components/canvas/AIChatPanel'));
+const PresentationMode = lazyWithRetry(() => import('../components/canvas/PresentationMode'));
+const WireframeToCodeModal = lazyWithRetry(() => import('../components/canvas/WireframeToCodeModal'));
+const MermaidModal = lazyWithRetry(() => import('../components/canvas/MermaidModal'));
+const AIDiagramModal = lazyWithRetry(() => import('../components/canvas/AIDiagramModal'));
+const WebEmbedModal = lazyWithRetry(() => import('../components/canvas/WebEmbedModal'));
 
 import { recognizeShapeFromPoints } from '../utils/shapeRecognizer';
 import { createComment } from '../api/comment.api';
