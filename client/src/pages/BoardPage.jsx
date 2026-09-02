@@ -14,7 +14,7 @@ import {
     ShieldCheck, Sliders, Library, PanelRight, Pin, Radio, FolderKanban, Search,
     Folder, Zap, LogIn, LogOut, Globe, ChevronRight, Monitor, Presentation,
     AlignLeft, AlignCenter, AlignRight, ArrowDownToLine, ArrowDown, ArrowUp, ArrowUpToLine, Home,
-    FileText, ChevronDown, Hand
+    FileText, ChevronDown, Hand, GripVertical
 } from 'lucide-react';
 import { getBoard, getBoards } from '../api/board.api';
 import { getPages, createPage, updatePage, deletePage } from '../api/page.api';
@@ -358,7 +358,7 @@ export default function BoardPage() {
     const [isDockFullscreen, setIsDockFullscreen] = useState(false);
     const [cmdQuery, setCmdQuery] = useState('');
     const [showMobileSheet, setShowMobileSheet] = useState(false);
-    const [isTabletPropsOpen, setIsTabletPropsOpen] = useState(false);
+    const [isPropsPanelMinimized, setIsPropsPanelMinimized] = useState(false);
     const [isToolbarCollapsed, setIsToolbarCollapsed] = useState(false);
     const pickerTimeoutRef = useRef(null);
     const touchStateRef = useRef({ dist: 0, scale: 1, pos: { x: 0, y: 0 }, center: { x: 0, y: 0 } });
@@ -4050,23 +4050,21 @@ export default function BoardPage() {
                         </div>
                     )}
 
-                    {/* Palm Rejection Toggle Button — Essential for iPad / Tablet drawing! */}
+                    {/* Palm Rejection Toggle Button — Compact Icon-Only to prevent topbar overlap */}
                     <button
                         className={`exc-top-btn exc-palm-btn${palmRejection ? ' active' : ''}`}
                         onClick={() => {
                             const next = !palmRejection;
                             setPalmRejection(next);
-                            toast(next ? '✋ Palm Rejection ON (Stylus only - hand resting is safe!)' : '👆 Finger & Stylus Drawing ON', {
-                                icon: next ? '✋' : '👆',
-                                duration: 2500
+                            toast.success(next ? 'Palm Rejection: ON' : 'Touch Drawing: ON', {
+                                duration: 1800,
+                                style: { background: '#1e1e2d', color: '#f1f5f9', border: '1px solid #6366f1', fontSize: '12px', fontWeight: 600 }
                             });
                         }}
-                        title={palmRejection ? "Palm Rejection is ON: Rest hand safely (Stylus only). Click to allow finger drawing." : "Palm Rejection is OFF: Drawing with fingers enabled. Click to reject palm touches."}
+                        title={palmRejection ? "Palm Rejection: ON (Stylus only). Click to allow finger drawing." : "Palm Rejection: OFF (Finger drawing on). Click to reject palm touches."}
+                        style={{ width: 34, height: 34, minWidth: 34, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
-                        <Hand size={15} strokeWidth={2.2} />
-                        <span className="hide-on-mobile hide-on-tablet" style={{ fontSize: 11, fontWeight: 600 }}>
-                            {palmRejection ? 'Palm Safe' : 'Finger On'}
-                        </span>
+                        <Hand size={16} strokeWidth={2.2} style={{ color: palmRejection ? '#fbbf24' : 'currentColor' }} />
                     </button>
 
                     {/* Fullscreen Button — ALWAYS VISIBLE on Tablet, Desktop & Mobile */}
@@ -4133,47 +4131,63 @@ export default function BoardPage() {
                 </div>
             </div>
 
-            {/* ══ LEFT PROPERTIES PANEL (Desktop & Tablet) ══ */}
-            {showPropertiesPanel && !isNotesMode && (
+            {/* ══ DRAGGABLE CONTROL PANEL (All Boards: Whiteboard, Architecture, ER Diagram) ══ */}
+            {!isNotesMode && (
                 <>
-                    {/* Tablet Floating Trigger Button to open properties */}
-                    <button
-                        type="button"
-                        className={`exc-tablet-props-trigger${isTabletPropsOpen ? ' is-open' : ''}`}
-                        onClick={() => setIsTabletPropsOpen(!isTabletPropsOpen)}
-                        title={isTabletPropsOpen ? "Close Style Panel" : "Open Style & Color Panel"}
-                    >
-                        <Sliders size={18} />
-                        <span
-                            className="exc-props-trigger-color"
-                            style={{ backgroundColor: color || '#8178e8' }}
-                        />
-                    </button>
-
-                    <div
-                        className={`exc-properties-panel desktop-only-panel${isTabletPropsOpen ? ' tablet-open' : ''}`}
-                        style={{
-                            left: isArchMode && isArchLibOpen ? 316 : 16,
-                            transition: 'left 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
-                        }}
-                    >
-                        {/* Header with Close [X] button so user can easily close it */}
-                        <div className="exc-properties-panel-header">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <Sliders size={13} style={{ color: '#8178e8' }} />
-                                <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                                    {hasSelection ? 'Element Styles' : 'Styles & Color'}
-                                </span>
+                    {/* Draggable Minimized Pill (Never disappears, can be dragged anywhere) */}
+                    {isPropsPanelMinimized ? (
+                        <motion.div
+                            drag
+                            dragMomentum={false}
+                            whileDrag={{ scale: 1.05 }}
+                            className="exc-props-minimized-pill"
+                            onClick={() => setIsPropsPanelMinimized(false)}
+                            title="Click to open Control Panel (Drag anywhere)"
+                            style={{ position: 'fixed', top: 74, left: 16, zIndex: 65 }}
+                        >
+                            <GripVertical size={13} style={{ opacity: 0.6, cursor: 'grab' }} />
+                            <Sliders size={14} style={{ color: '#8178e8' }} />
+                            <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#f1f5f9' }}>Styles</span>
+                            <span
+                                className="exc-props-color-dot"
+                                style={{ backgroundColor: color || '#8178e8' }}
+                            />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            drag
+                            dragMomentum={false}
+                            dragElastic={0.05}
+                            whileDrag={{ scale: 1.01, boxShadow: '0 20px 48px rgba(0, 0, 0, 0.75)' }}
+                            className="exc-properties-panel desktop-only-panel draggable-control-panel"
+                            style={{
+                                position: 'fixed',
+                                top: 74,
+                                left: isArchMode && isArchLibOpen ? 316 : 16,
+                                zIndex: 65
+                            }}
+                        >
+                            {/* Header with Drag handle and Close/Minimize button */}
+                            <div className="exc-properties-panel-header" title="Drag to move panel anywhere">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'grab' }}>
+                                    <GripVertical size={14} style={{ opacity: 0.6 }} />
+                                    <Sliders size={13} style={{ color: '#8178e8' }} />
+                                    <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                        {hasSelection ? 'Element Styles' : 'Styles & Color'}
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="exc-panel-close-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsPropsPanelMinimized(true);
+                                    }}
+                                    title="Minimize Control Panel (Never disappears)"
+                                >
+                                    <Minus size={14} />
+                                </button>
                             </div>
-                            <button
-                                type="button"
-                                className="exc-panel-close-btn"
-                                onClick={() => setIsTabletPropsOpen(false)}
-                                title="Close Styles Panel"
-                            >
-                                <X size={15} />
-                            </button>
-                        </div>
                     {tool === 'eraser' && !hasSelection ? (
                         <div className="selected-shape-actions">
                             <fieldset className="exc-fieldset">
@@ -4599,7 +4613,8 @@ export default function BoardPage() {
                             </div>
                         </>
                     )}
-                </div>
+                </motion.div>
+                    )}
                 </>
             )}
 

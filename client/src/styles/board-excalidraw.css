@@ -438,10 +438,10 @@
    ════════════════════ */
 .exc-toolbar {
   position: absolute;
-  top: 10px;
+  top: 8px;
   left: 50%; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 3px;
-  padding: 4px 6px;
+  display: flex; align-items: center; gap: 2px;
+  padding: 3px 5px;
   background: var(--exc-toolbar-bg);
   border: 1px solid var(--exc-border);
   border-radius: var(--exc-toolbar-radius);
@@ -451,7 +451,7 @@
 }
 
 .exc-tool-btn {
-  width: var(--exc-btn-size); height: var(--exc-btn-size);
+  width: 33px; height: 33px; min-width: 33px;
   display: flex; align-items: center; justify-content: center;
   border-radius: var(--exc-btn-radius);
   border: none;
@@ -468,8 +468,13 @@
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.35);
 }
 .exc-tool-btn .exc-shortcut {
-  position: absolute; bottom: 2px; right: 3px;
+  position: absolute; bottom: 1px; right: 2px;
   font-size: 8px; font-weight: 700; color: inherit; opacity: 0.6; line-height: 1;
+}
+
+.exc-tool-btn svg {
+  width: 17px;
+  height: 17px;
 }
 
 .exc-toolbar-sep {
@@ -697,6 +702,40 @@
 .exc-panel-close-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
+}
+
+.exc-props-minimized-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 12px 0 10px;
+  background: var(--exc-panel-bg, #232329);
+  border: 1px solid var(--exc-border, rgba(255, 255, 255, 0.16));
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.exc-props-minimized-pill:hover {
+  background: var(--exc-surface-2, #2c2c3b);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.exc-props-color-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid #232329;
+  flex-shrink: 0;
+}
+
+.draggable-control-panel {
+  user-select: none;
+  touch-action: none;
 }
 
 .exc-tablet-props-trigger {
@@ -1513,8 +1552,8 @@ legend, .exc-panel-label {
     left: 50% !important;
     transform: translateX(-50%) !important;
     margin: 0 !important;
-    padding: 6px 10px;
-    gap: 4px;
+    padding: 4px 6px !important;
+    gap: 2px !important;
     background: var(--exc-toolbar-bg, #23232f) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
@@ -1530,15 +1569,15 @@ legend, .exc-panel-label {
   }
 
   .exc-toolbar .exc-tool-btn {
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    border-radius: 8px !important;
+    width: 35px !important;
+    height: 35px !important;
+    min-width: 35px !important;
+    border-radius: 7px !important;
   }
 
   .exc-toolbar .exc-tool-btn svg {
-    width: 19px !important;
-    height: 19px !important;
+    width: 17px !important;
+    height: 17px !important;
   }
 
   /* Minimized/Collapsed Toolbar Pill on Tablet */
