@@ -36,13 +36,9 @@ function PublicRoute({ children }) {
 }
 
 function HomeRoute() {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
   if (loading) {
     return <ExcalidrawLoader fullScreen={true} />;
-  }
-  // If user is already logged in, take them straight to their workspaces / dashboard
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
   }
   return <LandingPage />;
 }

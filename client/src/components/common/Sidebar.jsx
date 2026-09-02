@@ -28,7 +28,8 @@ export default function Sidebar({ activeTab, onTabChange }) {
       <div className="sidebar-top">
         <div
           className="sidebar-logo"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/')}
+          title="Go to JustDraw Home Screen"
           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
