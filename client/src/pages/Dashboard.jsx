@@ -6,7 +6,8 @@ import {
     ChevronRight, Layers, Users, Sun, Moon, Sparkles,
     Paintbrush, Database, LayoutGrid, ArrowRight, Folder,
     NotebookPen, BookOpen, StickyNote, FileText,
-    AlignJustify, Grid3X3, Grid, Trash2
+    AlignJustify, Grid3X3, Grid, Trash2,
+    Sliders, Cpu, Shield, RefreshCw, Save
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
