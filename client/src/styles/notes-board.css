@@ -1117,3 +1117,68 @@
   color: #ffffff !important;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   TABLET & TOUCH OPTIMIZED TOOLBAR / CONTROL PANEL (iPadOS HIG)
+   ══════════════════════════════════════════════════════════════════════ */
+@media screen and (max-width: 1200px) and (min-width: 600px) {
+  .apple-notes-dock {
+    height: 52px !important;
+    padding: 6px 14px !important;
+    gap: 6px !important;
+    border-radius: 999px !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  .apple-tool-btn {
+    width: 44px !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+  }
+
+  .apple-tool-btn svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .apple-dock-divider {
+    height: 26px !important;
+    margin: 0 4px !important;
+  }
+
+  .apple-dock-color-swatch {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .apple-notes-minimized-pill {
+    height: 44px !important;
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    border-radius: 999px !important;
+  }
+
+  .apple-notes-minimized-pill svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Popout Menus (Colors, Stroke Widths, Eraser, Paper) */
+  .apple-floating-panel {
+    padding: 14px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .apple-floating-panel .color-swatch-btn {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .apple-width-btn {
+    height: 38px !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+  }
+}
+

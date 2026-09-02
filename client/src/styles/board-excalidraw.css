@@ -1469,17 +1469,29 @@ legend, .exc-panel-label {
     white-space: nowrap;
   }
   
-  /* Center: Drawing Toolbar embedded in Topbar */
+  /* Center: Drawing Toolbar embedded in Topbar — enlarged for tablet fingers & stylus */
   .exc-toolbar {
     position: absolute !important;
     top: max(8px, env(safe-area-inset-top)) !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     margin: 0 !important;
-    padding: 4px 6px;
+    padding: 4px 8px;
     gap: 4px;
     box-shadow: var(--exc-toolbar-shadow);
     z-index: 60;
+  }
+
+  .exc-toolbar .exc-tool-btn {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    border-radius: 8px !important;
+  }
+
+  .exc-toolbar .exc-tool-btn svg {
+    width: 19px !important;
+    height: 19px !important;
   }
 
   /* Right: Only Share, AI, Sidebar, Fullscreen, and Palm Rejection Buttons */
@@ -1496,9 +1508,9 @@ legend, .exc-panel-label {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    padding: 0 8px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    padding: 0 10px !important;
     border-radius: 8px !important;
   }
 
@@ -1514,13 +1526,30 @@ legend, .exc-panel-label {
     color: #fff !important;
   }
 
+  /* Left Properties Panel — Wider & touch-friendly on tablets */
   .exc-properties-panel {
-    top: max(70px, calc(env(safe-area-inset-top) + 60px));
-    left: 12px;
-    width: 220px;
+    top: max(74px, calc(env(safe-area-inset-top) + 64px));
+    left: 14px;
+    width: 256px;
+    padding: 14px 14px 16px 14px;
     max-height: calc(100vh - 120px);
     z-index: 65;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+  }
+
+  .exc-properties-panel .color-picker__button {
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 6px !important;
+  }
+
+  .exc-properties-panel .exc-panel-label {
+    font-size: 12px !important;
+  }
+
+  .exc-properties-panel .exc-panel-btn {
+    height: 34px !important;
+    font-size: 12px !important;
   }
 }
 
