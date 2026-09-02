@@ -97,7 +97,7 @@ export default function Sidebar({ activeTab, onTabChange }) {
       </div>
 
       <div className="sidebar-bottom">
-        <div className="sidebar-user">
+        <div className="sidebar-user" title={user?.name || 'Guest User'}>
           <div className="avatar" style={{ background: getAvatarColor(user?.name || 'Guest User') }}>
             {getInitials(user?.name || 'Guest')}
           </div>
@@ -106,17 +106,32 @@ export default function Sidebar({ activeTab, onTabChange }) {
             <span className="sidebar-user-email">{user?.email || 'Anonymous'}</span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={toggleTheme} className="btn btn-ghost btn-sm sidebar-logout" data-tooltip="Toggle Theme">
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        <div className="sidebar-actions-row">
+          <button
+            onClick={toggleTheme}
+            className="sidebar-action-btn"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            aria-label="Toggle Theme"
+          >
+            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
           {user ? (
-            <button onClick={logout} className="btn btn-ghost btn-sm sidebar-logout" data-tooltip="Logout">
-              <LogOut size={16} />
+            <button
+              onClick={logout}
+              className="sidebar-action-btn logout-btn"
+              title="Sign Out"
+              aria-label="Logout"
+            >
+              <LogOut size={17} />
             </button>
           ) : (
-            <button onClick={() => navigate('/login')} className="btn btn-ghost btn-sm sidebar-logout" data-tooltip="Sign In">
-              <LogIn size={16} />
+            <button
+              onClick={() => navigate('/login')}
+              className="sidebar-action-btn login-btn"
+              title="Sign In"
+              aria-label="Sign In"
+            >
+              <LogIn size={17} />
             </button>
           )}
         </div>
