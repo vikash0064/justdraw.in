@@ -1,0 +1,32 @@
+{
+  "name": "justdraw — Collaborative Whiteboard & Visual Studio",
+  "short_name": "justdraw",
+  "description": "Real-time collaborative whiteboard, notes studio, and visual architecture platform.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c0d14",
+  "theme_color": "#0c0d14",
+  "categories": ["productivity", "design", "utilities", "collaboration"],
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Board",
+      "url": "/dashboard",
+      "description": "Create a new whiteboard or visual project"
+    },
+    {
+      "name": "Join Room",
+      "url": "/join",
+      "description": "Join an ongoing collaborative session"
+    }
+  ]
+}
