@@ -96,8 +96,14 @@ if (clientDistPath) {
         immutable: true
     }));
 
-    // 2. Return 404 for missing assets (never fall back to index.html for .js/.css)
+    // 2. Return 404 for missing assets with correct MIME type to prevent browser console strict MIME errors
     app.use('/assets/*', (req, res) => {
+        if (req.path.endsWith('.css')) {
+            return res.status(404).type('text/css').end();
+        }
+        if (req.path.endsWith('.js')) {
+            return res.status(404).type('application/javascript').end();
+        }
         res.status(404).type('text/plain').send('Asset not found');
     });
 
