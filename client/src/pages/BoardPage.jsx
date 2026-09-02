@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Stage, Layer, Line, Rect, Circle, Text, Arrow, Transformer, Group, Path, Shape, Image as KonvaImage } from 'react-konva';
 import rough from 'roughjs';
@@ -25,17 +25,20 @@ import { useTheme } from '../context/ThemeContext';
 import { getInitials, getAvatarColor, formatTime } from '../utils/helpers';
 import ShapeLibrary from '../components/canvas/ShapeLibrary';
 import EREntity from '../components/canvas/EREntity';
-import EREditModal from '../components/canvas/EREditModal';
-import VideoCall from '../components/canvas/VideoCall';
-import AIChatPanel from '../components/canvas/AIChatPanel';
-import PresentationMode from '../components/canvas/PresentationMode';
 import CommentsOverlay from '../components/canvas/CommentsOverlay';
-import WireframeToCodeModal from '../components/canvas/WireframeToCodeModal';
 import MoreToolsMenu from '../components/canvas/MoreToolsMenu';
 import LaserPointerOverlay from '../components/canvas/LaserPointerOverlay';
-import MermaidModal from '../components/canvas/MermaidModal';
-import AIDiagramModal from '../components/canvas/AIDiagramModal';
-import WebEmbedModal from '../components/canvas/WebEmbedModal';
+
+// Lazy-loaded heavy components for ultra-fast initial board render
+const EREditModal = lazy(() => import('../components/canvas/EREditModal'));
+const VideoCall = lazy(() => import('../components/canvas/VideoCall'));
+const AIChatPanel = lazy(() => import('../components/canvas/AIChatPanel'));
+const PresentationMode = lazy(() => import('../components/canvas/PresentationMode'));
+const WireframeToCodeModal = lazy(() => import('../components/canvas/WireframeToCodeModal'));
+const MermaidModal = lazy(() => import('../components/canvas/MermaidModal'));
+const AIDiagramModal = lazy(() => import('../components/canvas/AIDiagramModal'));
+const WebEmbedModal = lazy(() => import('../components/canvas/WebEmbedModal'));
+
 import { recognizeShapeFromPoints } from '../utils/shapeRecognizer';
 import { createComment } from '../api/comment.api';
 
@@ -46,7 +49,6 @@ import '../styles/board-excalidraw.css';
 import ExcalidrawLoader from '../components/common/ExcalidrawLoader';
 import { ARCH_ICONS } from '../utils/archIcons';
 import toast from 'react-hot-toast';
-import jsPDF from 'jspdf';
 import NotesMarkupToolbar from '../components/canvas/NotesMarkupToolbar';
 import NotesPageStrip from '../components/canvas/NotesPageStrip';
 import '../styles/notes-board.css';
@@ -765,8 +767,34 @@ export default function BoardPage() {
         }
     }, [board?.mode, theme]);
 
-    // ── Load board and pages ──
+    // ── Load board and pages (with Instant Cache / SWR for 0ms load) ──
     useEffect(() => {
+        // 1. Instant Cache: If board was opened before, display it immediately in 0ms!
+        try {
+            const cachedBoard = sessionStorage.getItem(`cache_board_${boardId}`);
+            const cachedPages = sessionStorage.getItem(`cache_pages_${boardId}`);
+            if (cachedBoard && cachedPages) {
+                const b = JSON.parse(cachedBoard);
+                const pgs = JSON.parse(cachedPages);
+                setBoard(b);
+                setPages(pgs);
+                pgs.forEach(p => {
+                    pageDataRef.current[p._id] = {
+                        drawings: p.drawings || [],
+                        elements: p.elements || [],
+                    };
+                });
+                if (pgs.length > 0) {
+                    setActivePageId(pgs[0]._id);
+                    const firstData = pageDataRef.current[pgs[0]._id];
+                    setLines(firstData.drawings || []);
+                    setShapes(firstData.elements || []);
+                }
+                setLoading(false); // Render immediately!
+            }
+        } catch { }
+
+        // 2. Fresh Network Sync in background
         const load = async () => {
             try {
                 const [boardRes, pagesRes] = await Promise.all([
@@ -774,6 +802,14 @@ export default function BoardPage() {
                     getPages(boardId),
                 ]);
                 const b = boardRes.data;
+                const pgs = pagesRes.data;
+
+                // Save to instant cache for next visit
+                try {
+                    sessionStorage.setItem(`cache_board_${boardId}`, JSON.stringify(b));
+                    sessionStorage.setItem(`cache_pages_${boardId}`, JSON.stringify(pgs));
+                } catch { }
+
                 setBoard(b);
 
                 // Fetch other boards in the same workspace for the switcher (only for auth users)
@@ -787,7 +823,6 @@ export default function BoardPage() {
                     }
                 }
 
-                const pgs = pagesRes.data;
                 setPages(pgs);
                 // Populate page data ref
                 pgs.forEach(p => {
@@ -799,10 +834,10 @@ export default function BoardPage() {
                 if (pgs.length > 0) {
                     setActivePageId(pgs[0]._id);
                     const firstData = pageDataRef.current[pgs[0]._id];
-                    setLines(firstData.drawings);
-                    setShapes(firstData.elements);
+                    setLines(firstData.drawings || []);
+                    setShapes(firstData.elements || []);
                     // Init history with first snapshot
-                    const snap = { lines: [...firstData.drawings], shapes: [...firstData.elements] };
+                    const snap = { lines: [...(firstData.drawings || [])], shapes: [...(firstData.elements || [])] };
                     historyRef.current = [snap];
                     setHistoryIdx(0);
                     setHistoryLen(1);
@@ -814,8 +849,10 @@ export default function BoardPage() {
                     setTool('select');
                 }
             } catch {
-                toast.error('Failed to load board');
-                navigate('/dashboard');
+                if (!sessionStorage.getItem(`cache_board_${boardId}`)) {
+                    toast.error('Failed to load board');
+                    navigate('/dashboard');
+                }
             } finally {
                 setLoading(false);
             }
@@ -2140,10 +2177,11 @@ export default function BoardPage() {
         return () => window.removeEventListener('paste', handlePaste);
     }, [editingText, editingERShape, stagePos, stageScale, stageSize, activePageId]);
 
-    const exportToA4PDF = () => {
+    const exportToA4PDF = async () => {
         const stage = stageRef.current;
         if (!stage) return;
         const uri = stage.toDataURL({ pixelRatio: 2 });
+        const { default: jsPDF } = await import('jspdf');
         const pdf = new jsPDF('portrait', 'pt', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -2225,10 +2263,11 @@ export default function BoardPage() {
         toast.success('PNG exported!');
     };
 
-    const exportPDF = () => {
+    const exportPDF = async () => {
         const stage = stageRef.current;
         if (!stage) return;
         const uri = stage.toDataURL({ pixelRatio: 2 });
+        const { default: jsPDF } = await import('jspdf');
         const pdf = new jsPDF('landscape', 'px', [stageSize.width, stageSize.height]);
         pdf.addImage(uri, 'PNG', 0, 0, stageSize.width, stageSize.height);
         pdf.save(`${board?.title || 'board'}.pdf`);
@@ -3531,9 +3570,11 @@ export default function BoardPage() {
 
 
                 {/* Video Call Panel */}
-                <AnimatePresence>
-                    {showVideo && <VideoCall socket={socket} roomId={board?.workspace || boardId} user={effectiveUser} onClose={() => setShowVideo(false)} />}
-                </AnimatePresence>
+                <Suspense fallback={null}>
+                    <AnimatePresence>
+                        {showVideo && <VideoCall socket={socket} roomId={board?.workspace || boardId} user={effectiveUser} onClose={() => setShowVideo(false)} />}
+                    </AnimatePresence>
+                </Suspense>
             </div>
 
             {/* ══ TOP BAR ══ */}
@@ -5128,11 +5169,13 @@ export default function BoardPage() {
                             {/* 2. AI TAB */}
                             {activeRightTab === 'ai' && (
                                 <div className="exc-dock-section">
-                                    <AIChatPanel
-                                        socket={socket} boardId={boardId} pageId={activePageId}
-                                        canvasState={shapes} selectedElements={shapes.filter(s => selectedIds.has(s.id))}
-                                        onClose={() => setActiveRightTab(null)} visible={true}
-                                    />
+                                    <Suspense fallback={<div style={{ padding: 20, color: '#94a3b8' }}>Loading AI...</div>}>
+                                        <AIChatPanel
+                                            socket={socket} boardId={boardId} pageId={activePageId}
+                                            canvasState={shapes} selectedElements={shapes.filter(s => selectedIds.has(s.id))}
+                                            onClose={() => setActiveRightTab(null)} visible={true}
+                                        />
+                                    </Suspense>
                                 </div>
                             )}
 
@@ -5468,10 +5511,33 @@ export default function BoardPage() {
                 </div>
             )}
 
-            {/* ER Edit Modal */}
-            <AnimatePresence>
-                {editingERShape && <EREditModal shape={editingERShape} onSave={handleERSave} onClose={() => setEditingERShape(null)} />}
-            </AnimatePresence>
+            {/* Lazy Feature Modals */}
+            <Suspense fallback={null}>
+                {/* ER Edit Modal */}
+                <AnimatePresence>
+                    {editingERShape && <EREditModal shape={editingERShape} onSave={handleERSave} onClose={() => setEditingERShape(null)} />}
+                </AnimatePresence>
+
+                {/* Web Embed Modal */}
+                <AnimatePresence>
+                    {showWebEmbedModal && <WebEmbedModal onEmbed={handleInsertWebEmbed} onClose={() => setShowWebEmbedModal(false)} />}
+                </AnimatePresence>
+
+                {/* Wireframe to Code Modal */}
+                <AnimatePresence>
+                    {showWireframeModal && <WireframeToCodeModal canvasState={shapes} onClose={() => setShowWireframeModal(false)} />}
+                </AnimatePresence>
+
+                {/* Mermaid to Excalidraw Modal */}
+                <AnimatePresence>
+                    {showMermaidModal && <MermaidModal onInsertDiagram={handleInsertDiagram} onClose={() => setShowMermaidModal(false)} />}
+                </AnimatePresence>
+
+                {/* Text to Diagram AI Modal */}
+                <AnimatePresence>
+                    {showAIDiagramModal && <AIDiagramModal onInsertDiagram={handleInsertDiagram} onClose={() => setShowAIDiagramModal(false)} />}
+                </AnimatePresence>
+            </Suspense>
 
             {/* Canvas Threaded Comments Overlay */}
             <CommentsOverlay
@@ -5486,26 +5552,6 @@ export default function BoardPage() {
                 onCommentCreated={() => { setDraftCommentPos(null); setTool('select'); }}
                 socket={socket}
             />
-
-            {/* Web Embed Modal */}
-            <AnimatePresence>
-                {showWebEmbedModal && <WebEmbedModal onEmbed={handleInsertWebEmbed} onClose={() => setShowWebEmbedModal(false)} />}
-            </AnimatePresence>
-
-            {/* Wireframe to Code Modal */}
-            <AnimatePresence>
-                {showWireframeModal && <WireframeToCodeModal canvasState={shapes} onClose={() => setShowWireframeModal(false)} />}
-            </AnimatePresence>
-
-            {/* Mermaid to Excalidraw Modal */}
-            <AnimatePresence>
-                {showMermaidModal && <MermaidModal onInsertDiagram={handleInsertDiagram} onClose={() => setShowMermaidModal(false)} />}
-            </AnimatePresence>
-
-            {/* Text to Diagram AI Modal */}
-            <AnimatePresence>
-                {showAIDiagramModal && <AIDiagramModal onInsertDiagram={handleInsertDiagram} onClose={() => setShowAIDiagramModal(false)} />}
-            </AnimatePresence>
 
             {/* Interactive Web Embed Cards */}
             {shapes.filter(s => s.type === 'web-embed').map(embed => {
@@ -5533,11 +5579,6 @@ export default function BoardPage() {
                     </div>
                 );
             })}
-
-            {/* Web Embed Modal */}
-            <AnimatePresence>
-                {showWebEmbedModal && <WebEmbedModal onEmbed={handleInsertWebEmbed} onClose={() => setShowWebEmbedModal(false)} />}
-            </AnimatePresence>
 
             {/* Command Palette Modal */}
             <AnimatePresence>

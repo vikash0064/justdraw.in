@@ -14,6 +14,22 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-konva': ['konva', 'react-konva'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-icons': ['lucide-react'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1200,
+  },
   server: {
     port: 5173,
     strictPort: true,

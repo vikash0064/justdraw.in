@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './context/ThemeContext';
@@ -82,6 +82,15 @@ function BoardRoute({ children }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    // Idle prefetch of primary pages so page opens feel instantaneous
+    const idleCallback = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
+    idleCallback(() => {
+      import('./pages/Dashboard');
+      import('./pages/BoardPage');
+    });
+  }, []);
+
   return (
     <BrowserRouter>
       <ThemeProvider>
