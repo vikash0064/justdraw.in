@@ -448,6 +448,8 @@
   box-shadow: var(--exc-toolbar-shadow);
   z-index: 50;
   white-space: nowrap;
+  touch-action: none;
+  user-select: none;
 }
 
 .exc-tool-btn {
@@ -663,7 +665,8 @@
 .exc-properties-panel {
   position: absolute;
   top: 60px; left: 12px;
-  width: 176px;
+  width: 204px;
+  min-width: 204px;
   background: var(--exc-panel-bg, #232329);
   border: 1px solid var(--exc-border, rgba(255, 255, 255, 0.12));
   border-radius: 8px;
@@ -680,9 +683,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--exc-border, rgba(255, 255, 255, 0.08));
   margin-bottom: 4px;
+}
+
+.exc-properties-panel-header span {
+  white-space: nowrap;
 }
 
 .exc-panel-close-btn {

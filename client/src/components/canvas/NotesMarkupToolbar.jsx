@@ -119,8 +119,7 @@ export default function NotesMarkupToolbar({
                 className={`apple-notes-dock-wrap dock-${dockPosition}`}
                 drag
                 dragMomentum={false}
-                dragElastic={0.1}
-                dragConstraints={{ left: -350, right: 350, top: -450, bottom: 20 }}
+                dragElastic={0.05}
                 onDragStart={() => { isDraggingRef.current = true; }}
                 onDragEnd={() => {
                     setTimeout(() => { isDraggingRef.current = false; }, 150);
@@ -133,7 +132,7 @@ export default function NotesMarkupToolbar({
                         if (!isDraggingRef.current) setIsMinimized(false);
                     }}
                     title="Drag to move. Double-click or click arrow (▲) to expand"
-                    style={{ cursor: 'grab' }}
+                    style={{ cursor: 'grab', touchAction: 'none' }}
                 >
                     <GripVertical size={14} color="#94a3b8" />
                     <Pencil size={15} color="#f59e0b" />
@@ -187,8 +186,7 @@ export default function NotesMarkupToolbar({
             className={`apple-notes-dock-wrap dock-${dockPosition}`}
             drag
             dragMomentum={false}
-            dragElastic={0.1}
-            dragConstraints={{ left: -350, right: 350, top: -450, bottom: 20 }}
+            dragElastic={0.05}
             onDragStart={() => { isDraggingRef.current = true; }}
             onDragEnd={() => {
                 setTimeout(() => { isDraggingRef.current = false; }, 150);
@@ -371,12 +369,13 @@ export default function NotesMarkupToolbar({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: '4px 2px',
+                        padding: '6px 6px',
                         cursor: 'grab',
                         color: '#94a3b8',
-                        userSelect: 'none'
+                        userSelect: 'none',
+                        touchAction: 'none'
                     }}
-                    title="Drag toolbar anywhere"
+                    title="Drag markup toolbar anywhere"
                 >
                     <GripVertical size={16} />
                 </div>

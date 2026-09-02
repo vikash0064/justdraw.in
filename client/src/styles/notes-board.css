@@ -103,6 +103,8 @@
   z-index: 99999;
   display: flex;
   pointer-events: auto;
+  touch-action: none;
+  user-select: none;
 }
 
 .apple-notes-dock-wrap.dock-bottom {

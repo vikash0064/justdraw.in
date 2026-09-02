@@ -3898,7 +3898,12 @@ export default function BoardPage() {
                                 <span>Tools</span>
                             </button>
                         ) : (
-                            <div className="exc-toolbar">
+                            <motion.div
+                                drag
+                                dragMomentum={false}
+                                dragElastic={0.05}
+                                className="exc-toolbar"
+                            >
                                 <button
                                     className={`exc-tool-btn${toolLock ? ' active' : ''}`}
                                     onClick={() => setToolLock(!toolLock)}
@@ -4009,7 +4014,7 @@ export default function BoardPage() {
                                         }
                                     }}
                                 />
-                            </div>
+                            </motion.div>
                         )}
                     </>
                 )}
@@ -4169,16 +4174,17 @@ export default function BoardPage() {
                         >
                             {/* Header with Drag handle and Close/Minimize button */}
                             <div className="exc-properties-panel-header" title="Drag to move panel anywhere">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'grab' }}>
-                                    <GripVertical size={14} style={{ opacity: 0.6 }} />
-                                    <Sliders size={13} style={{ color: '#8178e8' }} />
-                                    <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 5, cursor: 'grab', minWidth: 0, flexShrink: 1 }}>
+                                    <GripVertical size={13} style={{ opacity: 0.6, flexShrink: 0 }} />
+                                    <Sliders size={13} style={{ color: '#8178e8', flexShrink: 0 }} />
+                                    <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
                                         {hasSelection ? 'Element Styles' : 'Styles & Color'}
                                     </span>
                                 </div>
                                 <button
                                     type="button"
                                     className="exc-panel-close-btn"
+                                    style={{ flexShrink: 0 }}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setIsPropsPanelMinimized(true);
