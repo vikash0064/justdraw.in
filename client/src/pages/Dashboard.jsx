@@ -41,13 +41,14 @@ export default function Dashboard() {
 
     const [workspaces, setWorkspaces] = useState(() => {
         try {
-            const cached = sessionStorage.getItem('centrio_workspaces_cache');
+            const cached = localStorage.getItem('justdraw_workspaces_cache') || sessionStorage.getItem('centrio_workspaces_cache');
             return cached ? JSON.parse(cached) : [];
         } catch { return []; }
     });
     const [loading, setLoading] = useState(() => {
         try {
-            return !sessionStorage.getItem('centrio_workspaces_cache');
+            const cached = localStorage.getItem('justdraw_workspaces_cache') || sessionStorage.getItem('centrio_workspaces_cache');
+            return !cached;
         } catch { return true; }
     });
     const [showCreate, setShowCreate] = useState(false);
@@ -59,12 +60,22 @@ export default function Dashboard() {
     const [creating, setCreating] = useState(false);
     const [search, setSearch] = useState('');
 
-    // Recent boards data
-    const [allBoardsList, setAllBoardsList] = useState([]);
-    const [recentBoards, setRecentBoards] = useState([]);
+    // Recent boards data — instant 0ms render from localStorage
+    const [allBoardsList, setAllBoardsList] = useState(() => {
+        try {
+            const cached = localStorage.getItem('justdraw_recent_boards_cache');
+            return cached ? JSON.parse(cached) : [];
+        } catch { return []; }
+    });
+    const [recentBoards, setRecentBoards] = useState(() => {
+        try {
+            const cached = localStorage.getItem('justdraw_recent_boards_cache');
+            return cached ? JSON.parse(cached).slice(0, 6) : [];
+        } catch { return []; }
+    });
     const [boardCounts, setBoardCounts] = useState(() => {
         try {
-            const cached = sessionStorage.getItem('centrio_board_counts_cache');
+            const cached = localStorage.getItem('justdraw_board_counts_cache') || sessionStorage.getItem('centrio_board_counts_cache');
             return cached ? JSON.parse(cached) : {};
         } catch { return {}; }
     });
@@ -99,18 +110,27 @@ export default function Dashboard() {
 
             const wsData = wsRes.data || [];
             setWorkspaces(wsData);
-            try { sessionStorage.setItem('centrio_workspaces_cache', JSON.stringify(wsData)); } catch (e) {}
+            try {
+                localStorage.setItem('justdraw_workspaces_cache', JSON.stringify(wsData));
+                sessionStorage.setItem('centrio_workspaces_cache', JSON.stringify(wsData));
+            } catch (e) {}
 
             const counts = {};
             wsData.forEach(ws => {
                 counts[ws._id] = ws.boardCount ?? 0;
             });
             setBoardCounts(counts);
-            try { sessionStorage.setItem('centrio_board_counts_cache', JSON.stringify(counts)); } catch (e) {}
+            try {
+                localStorage.setItem('justdraw_board_counts_cache', JSON.stringify(counts));
+                sessionStorage.setItem('centrio_board_counts_cache', JSON.stringify(counts));
+            } catch (e) {}
 
             const recentData = recentRes.data || [];
             setAllBoardsList(recentData);
             setRecentBoards(recentData.slice(0, 6));
+            try {
+                localStorage.setItem('justdraw_recent_boards_cache', JSON.stringify(recentData));
+            } catch (e) {}
         } catch (err) {
             console.error('Failed to load workspaces:', err);
             toast.error(err.response?.data?.message || 'Failed to load workspaces');

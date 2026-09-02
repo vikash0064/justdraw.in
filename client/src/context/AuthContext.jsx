@@ -11,10 +11,23 @@ export const useAuth = () => {
 };
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(() => {
+        try {
+            const token = localStorage.getItem('centrio_token');
+            const cached = localStorage.getItem('centrio_user');
+            if (token && cached) return JSON.parse(cached);
+        } catch {}
+        return null;
+    });
+    const [loading, setLoading] = useState(() => {
+        try {
+            const token = localStorage.getItem('centrio_token');
+            const cached = localStorage.getItem('centrio_user');
+            return !(token && cached);
+        } catch { return true; }
+    });
 
-    // Hydrate user from stored token on mount
+    // Hydrate / verify user from stored token on mount in background
     useEffect(() => {
         const hydrate = async () => {
             const token = localStorage.getItem('centrio_token');
@@ -24,6 +37,7 @@ export function AuthProvider({ children }) {
             }
             try {
                 const { data } = await getMe();
+                localStorage.setItem('centrio_user', JSON.stringify(data));
                 setUser(data);
             } catch {
                 localStorage.removeItem('centrio_token');

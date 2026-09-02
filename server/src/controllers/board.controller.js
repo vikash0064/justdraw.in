@@ -216,8 +216,12 @@ const getDsaStats = (req, res) => {
 // @route   GET /api/boards/recent
 const getRecentBoards = async (req, res) => {
     try {
+        const userId = req.user._id;
         const workspaces = await Workspace.find({
-            'members.user': req.user._id,
+            $or: [
+                { 'members.user': userId },
+                { owner: userId }
+            ]
         }).select('_id name').lean();
 
         const wsMap = {};
@@ -225,9 +229,10 @@ const getRecentBoards = async (req, res) => {
 
         const wsIds = workspaces.map(w => w._id);
         const boards = await Board.find({ workspace: { $in: wsIds } })
+            .select('_id title name mode workspace createdBy createdAt updatedAt')
             .populate('createdBy', 'name email avatar')
             .sort({ updatedAt: -1, createdAt: -1 })
-            .limit(20)
+            .limit(16)
             .lean();
 
         const formatted = boards.map(b => ({
