@@ -22,6 +22,7 @@ import { uploadFile } from '../api/upload.api';
 import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { getApiBaseUrl } from '../api/axios';
 import { getInitials, getAvatarColor, formatTime } from '../utils/helpers';
 import ShapeLibrary from '../components/canvas/ShapeLibrary';
 import EREntity from '../components/canvas/EREntity';
@@ -2282,8 +2283,8 @@ export default function BoardPage() {
         try {
             const { data } = await uploadFile(formData);
             if (data.url) {
-                // Determine base URL dynamically based on axios baseURL
-                const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+                // Determine base URL dynamically based on current origin/environment
+                const baseUrl = getApiBaseUrl();
                 const fileUrl = `${baseUrl}${data.url}`;
                 socket.emit('chat:message', {
                     boardId,

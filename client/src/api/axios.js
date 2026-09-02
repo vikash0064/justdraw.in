@@ -1,12 +1,16 @@
 import axios from 'axios';
 
-const getBaseURL = () => {
-    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+export const getApiBaseUrl = () => {
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '');
     if (typeof window !== 'undefined') {
-        if (window.location.port === '5173') return 'http://localhost:5000/api';
-        return `${window.location.origin}/api`;
+        if (window.location.port === '5173') return 'http://localhost:5000';
+        return window.location.origin;
     }
-    return '/api';
+    return '';
+};
+
+const getBaseURL = () => {
+    return `${getApiBaseUrl()}/api`;
 };
 
 const API = axios.create({

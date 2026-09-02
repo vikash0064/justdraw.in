@@ -5,6 +5,7 @@ import { Mail, Lock, ArrowRight, Eye, EyeOff, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
+import { getApiBaseUrl } from '../api/axios';
 import ExcalidrawBackgroundDoodles from '../components/auth/ExcalidrawBackgroundDoodles';
 import ExcalidrawShowcaseCarousel from '../components/auth/ExcalidrawShowcaseCarousel';
 import '../styles/excalidraw-auth.css';
@@ -45,7 +46,7 @@ export default function Login() {
   };
 
   const handleGoogleLogin = () => {
-    const apiUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+    const apiUrl = getApiBaseUrl();
     const returnTo = encodeURIComponent(window.location.origin);
     window.location.href = `${apiUrl}/api/auth/google?return_to=${returnTo}&t=${Date.now()}`;
   };
