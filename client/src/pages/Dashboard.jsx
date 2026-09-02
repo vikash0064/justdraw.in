@@ -608,31 +608,36 @@ export default function Dashboard() {
                                 className={`dash-filter-pill ${recentFilterMode === 'all' ? 'active' : ''}`}
                                 onClick={() => setRecentFilterMode('all')}
                             >
-                                All Boards ({allBoardsList.length})
+                                <Layers size={14} />
+                                <span>All Boards ({allBoardsList.length})</span>
                             </button>
                             <button
                                 className={`dash-filter-pill ${recentFilterMode === 'whiteboard' ? 'active' : ''}`}
                                 onClick={() => setRecentFilterMode('whiteboard')}
                             >
-                                🎨 Whiteboard
+                                <Paintbrush size={14} style={{ color: '#6366f1' }} />
+                                <span>Whiteboard</span>
                             </button>
                             <button
                                 className={`dash-filter-pill ${recentFilterMode === 'architecture' ? 'active' : ''}`}
                                 onClick={() => setRecentFilterMode('architecture')}
                             >
-                                📱 Wireframe & System
+                                <LayoutGrid size={14} style={{ color: '#06b6d4' }} />
+                                <span>Wireframe & System</span>
                             </button>
                             <button
                                 className={`dash-filter-pill ${recentFilterMode === 'er' ? 'active' : ''}`}
                                 onClick={() => setRecentFilterMode('er')}
                             >
-                                🗄️ ER Diagram
+                                <Database size={14} style={{ color: '#8b5cf6' }} />
+                                <span>ER Diagram</span>
                             </button>
                             <button
                                 className={`dash-filter-pill ${recentFilterMode === 'notes' ? 'active' : ''}`}
                                 onClick={() => setRecentFilterMode('notes')}
                             >
-                                📝 Notes Board
+                                <NotebookPen size={14} style={{ color: '#f59e0b' }} />
+                                <span>Notes Board</span>
                             </button>
                         </div>
 

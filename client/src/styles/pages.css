@@ -3454,28 +3454,41 @@
 }
 
 .dash-filter-pill {
-    padding: 6px 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 15px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 0.8rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
     font-weight: 700;
     color: var(--muted);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(.23,1,.32,1);
+    white-space: nowrap;
+}
+
+.dash-filter-pill svg {
+    flex-shrink: 0;
 }
 
 .dash-filter-pill:hover {
     background: var(--surface-hover);
     color: var(--ink);
     border-color: var(--border-light);
+    transform: translateY(-1px);
 }
 
 .dash-filter-pill.active {
     background: var(--violet);
     color: #ffffff;
     border-color: var(--violet);
-    box-shadow: 0 4px 12px rgba(102, 87, 217, 0.25);
+    box-shadow: 0 4px 14px rgba(102, 87, 217, 0.35);
+}
+
+.dash-filter-pill.active svg {
+    color: #ffffff !important;
 }
 
 /* ── Detailed Recent Grid ── */
