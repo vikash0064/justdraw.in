@@ -1580,6 +1580,10 @@ legend, .exc-panel-label {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  .hide-on-desktop {
+    display: flex !important;
+  }
   
   /* Center: Drawing Toolbar moved to BOTTOM dock on tablet (Apple iPad style, eliminates topbar overlap) */
   .exc-toolbar {

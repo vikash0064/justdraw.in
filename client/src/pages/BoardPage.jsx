@@ -379,6 +379,7 @@ export default function BoardPage() {
     const [showMobileSheet, setShowMobileSheet] = useState(false);
     const [isPropsPanelMinimized, setIsPropsPanelMinimized] = useState(false);
     const [isToolbarCollapsed, setIsToolbarCollapsed] = useState(false);
+    const [isTabletOrMobile, setIsTabletOrMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 1023);
     const pickerTimeoutRef = useRef(null);
     const touchStateRef = useRef({ dist: 0, scale: 1, pos: { x: 0, y: 0 }, center: { x: 0, y: 0 } });
     const activePenPointerIdRef = useRef(null);
@@ -424,6 +425,7 @@ export default function BoardPage() {
     useEffect(() => {
         const handleFSChange = () => {
             setIsFullscreen(!!document.fullscreenElement);
+            setIsTabletOrMobile(window.innerWidth <= 1023);
             setStageSize({
                 width: window.innerWidth,
                 height: window.innerHeight - 56
@@ -3970,7 +3972,7 @@ export default function BoardPage() {
                 {/* Center: TOOL TOOLBAR (bottom dock on tablet, centered topbar on desktop) */}
                 {!isNotesMode && (
                     <>
-                        {isToolbarCollapsed ? (
+                        {(isToolbarCollapsed && isTabletOrMobile) ? (
                             <motion.div
                                 drag
                                 dragMomentum={false}
@@ -3986,17 +3988,16 @@ export default function BoardPage() {
                             </motion.div>
                         ) : (
                             <motion.div
-                                drag
+                                drag={isTabletOrMobile}
                                 dragMomentum={false}
                                 dragElastic={0.05}
-                                whileDrag={{ scale: 1.01, boxShadow: '0 16px 48px rgba(0,0,0,0.65)' }}
+                                whileDrag={isTabletOrMobile ? { scale: 1.01, boxShadow: '0 16px 48px rgba(0,0,0,0.65)' } : undefined}
                                 className="exc-toolbar"
                             >
-                                {/* Drag Handle for Tablet & Desktop Movement */}
+                                {/* Drag Handle for Tablet Movement (Hidden on Desktop) */}
                                 <div
-                                    className="exc-toolbar-drag-handle"
+                                    className="exc-toolbar-drag-handle hide-on-desktop"
                                     style={{
-                                        display: 'flex',
                                         alignItems: 'center',
                                         padding: '0 3px',
                                         cursor: 'grab',
@@ -4007,7 +4008,7 @@ export default function BoardPage() {
                                 >
                                     <GripVertical size={14} />
                                 </div>
-                                <div className="exc-toolbar-sep" style={{ margin: '0 2px' }} />
+                                <div className="exc-toolbar-sep hide-on-desktop" style={{ margin: '0 2px' }} />
 
                                 <button
                                     className={`exc-tool-btn${toolLock ? ' active' : ''}`}
@@ -4109,12 +4110,12 @@ export default function BoardPage() {
                                     />
                                 </button>
 
-                                <div className="exc-toolbar-sep" style={{ margin: '0 4px' }} />
+                                <div className="exc-toolbar-sep hide-on-desktop" style={{ margin: '0 4px' }} />
 
-                                {/* Minimize Toolbar Button (Make small / Chhota ho jayega) */}
+                                {/* Minimize Toolbar Button (Tablet only - hidden on desktop) */}
                                 <button
                                     type="button"
-                                    className="exc-tool-btn exc-toolbar-minimize-btn"
+                                    className="exc-tool-btn exc-toolbar-minimize-btn hide-on-desktop"
                                     onClick={() => setIsToolbarCollapsed(true)}
                                     data-exc-tooltip="Minimize Toolbar"
                                     title="Minimize Toolbar (Chhota karein)"
