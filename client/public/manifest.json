@@ -5,15 +5,23 @@
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#0c0d14",
   "theme_color": "#0c0d14",
+  "prefer_related_applications": false,
   "categories": ["productivity", "design", "utilities", "collaboration"],
   "icons": [
     {
-      "src": "/vite.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "/app-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/justdraw-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],

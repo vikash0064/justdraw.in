@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import ExcalidrawLoader from './components/common/ExcalidrawLoader';
+import PWAInstallPrompt from './components/common/PWAInstallPrompt';
 
 // Lazy-load page components for ultra-fast initial bundle and routing
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -93,6 +94,7 @@ export default function App() {
         <AuthProvider>
           <SocketProvider>
             <AppRoutes />
+            <PWAInstallPrompt />
             <Toaster
               position="top-right"
               toastOptions={{

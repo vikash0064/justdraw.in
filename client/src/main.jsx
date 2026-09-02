@@ -26,9 +26,14 @@ window.addEventListener('error', (event) => {
   }
 });
 
-// Clear reload lock on successful load
+// Clear reload lock on successful load & register Service Worker for PWA
 window.addEventListener('load', () => {
   sessionStorage.removeItem('app_chunk_reload');
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('[PWA] Service Worker registration failed:', err);
+    });
+  }
 });
 
 createRoot(document.getElementById('root')).render(

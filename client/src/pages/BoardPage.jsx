@@ -439,6 +439,29 @@ export default function BoardPage() {
         };
     }, []);
 
+    // ── First-touch auto fullscreen for immersive iPad / tablet app experience ──
+    const autoFSTriggeredRef = useRef(false);
+    useEffect(() => {
+        const handleFirstGestureFullscreen = () => {
+            if (autoFSTriggeredRef.current) return;
+            autoFSTriggeredRef.current = true;
+
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            if (!document.fullscreenElement && !isStandalone && window.innerWidth <= 1024) {
+                const docEl = document.documentElement;
+                const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+                if (req) {
+                    req.call(docEl).catch(() => {});
+                }
+            }
+        };
+
+        window.addEventListener('pointerdown', handleFirstGestureFullscreen, { once: true, passive: true });
+        return () => {
+            window.removeEventListener('pointerdown', handleFirstGestureFullscreen);
+        };
+    }, []);
+
     const handlePickerMouseEnter = (type) => {
         if (pickerTimeoutRef.current) clearTimeout(pickerTimeoutRef.current);
         setActivePicker(type);
