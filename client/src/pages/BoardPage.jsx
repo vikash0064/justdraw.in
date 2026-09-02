@@ -3954,22 +3954,44 @@ export default function BoardPage() {
                 {!isNotesMode && (
                     <>
                         {isToolbarCollapsed ? (
-                            <button
-                                type="button"
+                            <motion.div
+                                drag
+                                dragMomentum={false}
+                                whileDrag={{ scale: 1.05 }}
                                 className="exc-toolbar-expand-pill"
                                 onClick={() => setIsToolbarCollapsed(false)}
-                                title="Show Drawing Tools"
+                                title="Show Drawing Tools (Tap to expand, drag to move)"
                             >
-                                <Pencil size={16} />
+                                <GripVertical size={13} style={{ opacity: 0.5, cursor: 'grab' }} />
+                                <Pencil size={15} />
                                 <span>Tools</span>
-                            </button>
+                                <span className="exc-props-color-dot" style={{ backgroundColor: color || '#8178e8' }} />
+                            </motion.div>
                         ) : (
                             <motion.div
                                 drag
                                 dragMomentum={false}
                                 dragElastic={0.05}
+                                whileDrag={{ scale: 1.01, boxShadow: '0 16px 48px rgba(0,0,0,0.65)' }}
                                 className="exc-toolbar"
                             >
+                                {/* Drag Handle for Tablet & Desktop Movement */}
+                                <div
+                                    className="exc-toolbar-drag-handle"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: '0 3px',
+                                        cursor: 'grab',
+                                        opacity: 0.6,
+                                        touchAction: 'none'
+                                    }}
+                                    title="Drag toolbar anywhere"
+                                >
+                                    <GripVertical size={14} />
+                                </div>
+                                <div className="exc-toolbar-sep" style={{ margin: '0 2px' }} />
+
                                 <button
                                     className={`exc-tool-btn${toolLock ? ' active' : ''}`}
                                     onClick={() => setToolLock(!toolLock)}
@@ -4068,6 +4090,20 @@ export default function BoardPage() {
                                             border: '1.5px solid #1e1e2d'
                                         }}
                                     />
+                                </button>
+
+                                <div className="exc-toolbar-sep" style={{ margin: '0 4px' }} />
+
+                                {/* Minimize Toolbar Button (Make small / Chhota ho jayega) */}
+                                <button
+                                    type="button"
+                                    className="exc-tool-btn exc-toolbar-minimize-btn"
+                                    onClick={() => setIsToolbarCollapsed(true)}
+                                    data-exc-tooltip="Minimize Toolbar"
+                                    title="Minimize Toolbar (Chhota karein)"
+                                    style={{ opacity: 0.8 }}
+                                >
+                                    <Minus size={15} />
                                 </button>
                                 <input
                                     type="file"

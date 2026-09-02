@@ -751,7 +751,33 @@
 }
 
 .exc-toolbar-expand-pill {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: fixed;
+  bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
+  left: 50%;
+  transform: translateX(-50%);
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 24px;
+  background: var(--exc-toolbar-bg, #23232f);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  z-index: 90;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+.exc-toolbar-expand-pill:hover {
+  transform: translateX(-50%) scale(1.05);
 }
 
 .selected-shape-actions {
@@ -1557,22 +1583,23 @@ legend, .exc-panel-label {
   
   /* Center: Drawing Toolbar moved to BOTTOM dock on tablet (Apple iPad style, eliminates topbar overlap) */
   .exc-toolbar {
-    position: fixed !important;
-    top: auto !important;
-    bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px)) !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    margin: 0 !important;
-    padding: 4px 6px !important;
-    gap: 2px !important;
-    background: var(--exc-toolbar-bg, #23232f) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
-    border-radius: 14px !important;
-    z-index: 90 !important;
-    max-width: calc(100vw - 24px) !important;
-    overflow-x: auto !important;
+    position: fixed;
+    top: auto;
+    bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 4px 6px;
+    gap: 2px;
+    background: var(--exc-toolbar-bg, #23232f);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    z-index: 90;
+    max-width: calc(100vw - 24px);
+    overflow-x: auto;
+    touch-action: none;
   }
 
   .exc-toolbar::-webkit-scrollbar {
