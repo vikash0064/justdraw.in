@@ -5,7 +5,7 @@ import {
     StickyNote, Square, Circle, Diamond, ArrowUpRight, Minus,
     Image, Palette, Undo2, Redo2, Download, FileText,
     Sliders, ChevronDown, ChevronUp, Move, Trash2, Check,
-    GripVertical, PenTool, Sparkles, Hand
+    GripVertical, PenTool, Sparkles, Hand, AlignJustify, Grid3X3, Grid
 } from 'lucide-react';
 
 const APPLE_COLORS = [
@@ -338,24 +338,28 @@ export default function NotesMarkupToolbar({
                 </div>
             )}
 
-            {/* 5. Paper Pattern Flyout (Theme Matched) */}
+            {/* 5. Paper Pattern Flyout (Professional Segmented Control — No Emojis) */}
             {showPaperMenu && (
-                <div className="apple-palette-flyout">
+                <div className="notes-paper-pattern-flyout">
                     {[
-                        { id: 'lined', label: '📝 Line wala' },
-                        { id: 'plain', label: '📄 Plain' },
-                        { id: 'dots', label: '⚬ Dots' },
-                        { id: 'grid', label: '▦ Grid' }
-                    ].map((p) => (
-                        <button
-                            key={p.id}
-                            className={`eraser-size-btn ${paperPattern === p.id ? 'active' : ''}`}
-                            onClick={() => { setPaperPattern(p.id); setShowPaperMenu(false); }}
-                            style={{ padding: '5px 10px' }}
-                        >
-                            {p.label}
-                        </button>
-                    ))}
+                        { id: 'lined', label: 'Ruled', icon: AlignJustify },
+                        { id: 'plain', label: 'Blank', icon: FileText },
+                        { id: 'dots', label: 'Dots', icon: Grid3X3 },
+                        { id: 'grid', label: 'Grid', icon: Grid }
+                    ].map((p) => {
+                        const Icon = p.icon;
+                        return (
+                            <button
+                                key={p.id}
+                                className={`notes-paper-opt-btn ${paperPattern === p.id ? 'active' : ''}`}
+                                onClick={() => { setPaperPattern(p.id); setShowPaperMenu(false); }}
+                                title={`${p.label} Paper Template`}
+                            >
+                                <Icon size={14} />
+                                <span>{p.label}</span>
+                            </button>
+                        );
+                    })}
                 </div>
             )}
 
@@ -516,9 +520,9 @@ export default function NotesMarkupToolbar({
                     <Sliders size={14} />
                 </button>
 
-                {/* 11. Paper Template Selector (Desktop only — already in topbar) */}
+                {/* 11. Paper Template Selector (Available on Desktop & Tablet) */}
                 <button
-                    className="apple-tool-btn dock-desktop-only"
+                    className={`apple-tool-btn${showPaperMenu ? ' active' : ''}`}
                     onClick={() => {
                         setShowPaperMenu(!showPaperMenu);
                         setShowPalette(false);
@@ -526,7 +530,7 @@ export default function NotesMarkupToolbar({
                         setShowWidths(false);
                         setShowEraserMenu(false);
                     }}
-                    title="Paper Style (Lined, Plain, Dots, Grid)"
+                    title="Paper Style (Ruled, Blank, Dots, Grid)"
                 >
                     <FileText size={15} />
                 </button>

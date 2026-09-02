@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, ArrowLeft, Pencil, Layout, Database,
-    Trash2, Users, UserPlus, Clock, ChevronRight, NotebookPen
+    Trash2, Users, UserPlus, Clock, ChevronRight, NotebookPen,
+    AlignJustify, FileText, Grid3X3, Grid
 } from 'lucide-react';
 import { getWorkspace, addMember } from '../api/workspace.api';
 import { getBoards, createBoard, deleteBoard } from '../api/board.api';
@@ -295,34 +296,40 @@ export default function WorkspaceDetail() {
                                         <label>Select Paper Style (Notes Board)</label>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
                                             {[
-                                                { id: 'lined', label: '📝 Line wala Page (Ruled)', desc: 'Ruled notebook lines with margin' },
-                                                { id: 'plain', label: '📄 Plain Page (Blank)', desc: 'Clean white unlined A4 sheet' },
-                                                { id: 'dots', label: '⚬ Dotted Grid', desc: 'Bullet journal dot matrix' },
-                                                { id: 'grid', label: '▦ Graph Grid', desc: 'Math & engineering squares' },
-                                            ].map(item => (
-                                                <button
-                                                    key={item.id}
-                                                    type="button"
-                                                    onClick={() => setNotesPattern(item.id)}
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'flex-start',
-                                                        gap: 3,
-                                                        padding: '10px 12px',
-                                                        borderRadius: '8px',
-                                                        border: notesPattern === item.id ? '2px solid #f59e0b' : '1px solid var(--border)',
-                                                        background: notesPattern === item.id ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-secondary)',
-                                                        cursor: 'pointer',
-                                                        textAlign: 'left'
-                                                    }}
-                                                >
-                                                    <span style={{ fontSize: '12px', fontWeight: 600, color: notesPattern === item.id ? '#f59e0b' : 'var(--text)' }}>
-                                                        {item.label}
-                                                    </span>
-                                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{item.desc}</span>
-                                                </button>
-                                            ))}
+                                                { id: 'lined', label: 'Ruled Page', desc: 'Ruled notebook lines with margin', icon: AlignJustify },
+                                                { id: 'plain', label: 'Blank Page', desc: 'Clean white unlined A4 sheet', icon: FileText },
+                                                { id: 'dots', label: 'Dotted Grid', desc: 'Bullet journal dot matrix', icon: Grid3X3 },
+                                                { id: 'grid', label: 'Square Grid', desc: 'Math & engineering squares', icon: Grid }
+                                            ].map(item => {
+                                                const Icon = item.icon;
+                                                return (
+                                                    <button
+                                                        key={item.id}
+                                                        type="button"
+                                                        onClick={() => setNotesPattern(item.id)}
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'flex-start',
+                                                            gap: 5,
+                                                            padding: '10px 12px',
+                                                            borderRadius: '6px',
+                                                            border: notesPattern === item.id ? '2px solid #f59e0b' : '1px solid var(--border)',
+                                                            background: notesPattern === item.id ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-secondary)',
+                                                            cursor: 'pointer',
+                                                            textAlign: 'left'
+                                                        }}
+                                                    >
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                            <Icon size={14} color={notesPattern === item.id ? '#f59e0b' : 'var(--text)'} />
+                                                            <span style={{ fontSize: '12px', fontWeight: 600, color: notesPattern === item.id ? '#f59e0b' : 'var(--text)' }}>
+                                                                {item.label}
+                                                            </span>
+                                                        </div>
+                                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{item.desc}</span>
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}

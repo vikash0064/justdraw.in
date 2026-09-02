@@ -5,8 +5,8 @@ import {
     Plus, Layout, Search, LogOut, Settings, Clock,
     ChevronRight, Layers, Users, Sun, Moon, Sparkles,
     Paintbrush, Database, LayoutGrid, ArrowRight, Folder,
-    Check, Trash2, Shield, Sliders, Cpu, Save, RefreshCw,
-    NotebookPen, BookOpen, StickyNote, FileText
+    NotebookPen, BookOpen, StickyNote, FileText,
+    AlignJustify, Grid3X3, Grid
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -958,37 +958,43 @@ export default function Dashboard() {
                                     <label>Choose Paper Style</label>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: 4 }}>
                                         {[
-                                            { id: 'lined', label: '📝 Line wala Page (Ruled)', desc: 'Apple Notes ruled lines with red margin' },
-                                            { id: 'plain', label: '📄 Plain Page (Blank)', desc: 'Clean white unlined A4 paper for free sketching' },
-                                            { id: 'dots', label: '⚬ Dotted Grid', desc: 'Bullet journal dot matrix layout' },
-                                            { id: 'grid', label: '▦ Graph Grid', desc: 'Engineering & math square grid' }
-                                        ].map(item => (
-                                            <button
-                                                key={item.id}
-                                                type="button"
-                                                onClick={() => setNotesPaperStyle(item.id)}
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'flex-start',
-                                                    gap: 4,
-                                                    padding: '12px',
-                                                    borderRadius: '8px',
-                                                    border: notesPaperStyle === item.id ? '2px solid #f59e0b' : '1px solid var(--border)',
-                                                    background: notesPaperStyle === item.id ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-secondary)',
-                                                    cursor: 'pointer',
-                                                    textAlign: 'left',
-                                                    transition: 'all 0.15s ease'
-                                                }}
-                                            >
-                                                <span style={{ fontSize: '12px', fontWeight: 700, color: notesPaperStyle === item.id ? '#f59e0b' : 'var(--text)' }}>
-                                                    {item.label}
-                                                </span>
-                                                <span style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.3 }}>
-                                                    {item.desc}
-                                                </span>
-                                            </button>
-                                        ))}
+                                            { id: 'lined', label: 'Ruled Page', desc: 'Classic notebook lines with margin', icon: AlignJustify },
+                                            { id: 'plain', label: 'Blank Page', desc: 'Clean white unlined A4 paper for free sketching', icon: FileText },
+                                            { id: 'dots', label: 'Dotted Grid', desc: 'Bullet journal dot matrix layout', icon: Grid3X3 },
+                                            { id: 'grid', label: 'Square Grid', desc: 'Engineering & math square graph grid', icon: Grid }
+                                        ].map(item => {
+                                            const Icon = item.icon;
+                                            return (
+                                                <button
+                                                    key={item.id}
+                                                    type="button"
+                                                    onClick={() => setNotesPaperStyle(item.id)}
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'flex-start',
+                                                        gap: 6,
+                                                        padding: '12px',
+                                                        borderRadius: '6px',
+                                                        border: notesPaperStyle === item.id ? '2px solid #f59e0b' : '1px solid var(--border)',
+                                                        background: notesPaperStyle === item.id ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-secondary)',
+                                                        cursor: 'pointer',
+                                                        textAlign: 'left',
+                                                        transition: 'all 0.15s ease'
+                                                    }}
+                                                >
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                        <Icon size={14} color={notesPaperStyle === item.id ? '#f59e0b' : 'var(--text)'} />
+                                                        <span style={{ fontSize: '12px', fontWeight: 700, color: notesPaperStyle === item.id ? '#f59e0b' : 'var(--text)' }}>
+                                                            {item.label}
+                                                        </span>
+                                                    </div>
+                                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.3 }}>
+                                                        {item.desc}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
 
