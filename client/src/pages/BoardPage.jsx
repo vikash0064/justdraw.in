@@ -380,6 +380,7 @@ export default function BoardPage() {
     const [isPropsPanelMinimized, setIsPropsPanelMinimized] = useState(false);
     const [isToolbarCollapsed, setIsToolbarCollapsed] = useState(false);
     const [isTabletOrMobile, setIsTabletOrMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 1023);
+    const [isMobileScreen, setIsMobileScreen] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
     const pickerTimeoutRef = useRef(null);
     const touchStateRef = useRef({ dist: 0, scale: 1, pos: { x: 0, y: 0 }, center: { x: 0, y: 0 } });
     const activePenPointerIdRef = useRef(null);
@@ -426,6 +427,7 @@ export default function BoardPage() {
         const handleFSChange = () => {
             setIsFullscreen(!!document.fullscreenElement);
             setIsTabletOrMobile(window.innerWidth <= 1023);
+            setIsMobileScreen(window.innerWidth < 768);
             setStageSize({
                 width: window.innerWidth,
                 height: window.innerHeight - 56
@@ -2577,15 +2579,6 @@ export default function BoardPage() {
                 onDrop={handleCanvasDrop}
                 onDragOver={handleCanvasDragOver}
             >
-                <CommentsOverlay
-                    boardId={boardId}
-                    pageId={activePageId}
-                    stageScale={stageScale}
-                    stagePos={stagePos}
-                    effectiveUser={effectiveUser}
-                    activeTool={tool}
-                    key={commentsVersion}
-                />
                 <Stage
                     ref={stageRef}
                     width={stageSize.width} height={stageSize.height}
@@ -5013,26 +5006,28 @@ export default function BoardPage() {
                 </>
             )}
 
-            {/* ══ MOBILE QUICK PROPERTY BAR ══ */}
-            <div className="exc-mobile-quick-bar hide-on-desktop">
-                <div
-                    className="color-picker__button"
-                    style={{ '--swatch-color': color, width: 28, height: 28 }}
-                    onClick={() => setShowMobileSheet(true)}
-                >
-                    <div className="color-picker__button-outline" />
+            {/* ══ MOBILE QUICK PROPERTY BAR (Strictly for mobile phones < 768px) ══ */}
+            {isMobileScreen && (
+                <div className="exc-mobile-quick-bar">
+                    <div
+                        className="color-picker__button"
+                        style={{ '--swatch-color': color, width: 28, height: 28 }}
+                        onClick={() => setShowMobileSheet(true)}
+                    >
+                        <div className="color-picker__button-outline" />
+                    </div>
+                    <div
+                        className={`color-picker__button${bgColor === 'transparent' ? ' is-transparent' : ''}`}
+                        style={{ '--swatch-color': bgColor === 'transparent' ? '#ededed00' : bgColor, width: 28, height: 28 }}
+                        onClick={() => setShowMobileSheet(true)}
+                    >
+                        <div className="color-picker__button-outline" />
+                    </div>
+                    <button className="exc-mobile-quick-btn" onClick={() => setShowMobileSheet(true)}>
+                        <Sliders size={14} /> Properties
+                    </button>
                 </div>
-                <div
-                    className={`color-picker__button${bgColor === 'transparent' ? ' is-transparent' : ''}`}
-                    style={{ '--swatch-color': bgColor === 'transparent' ? '#ededed00' : bgColor, width: 28, height: 28 }}
-                    onClick={() => setShowMobileSheet(true)}
-                >
-                    <div className="color-picker__button-outline" />
-                </div>
-                <button className="exc-mobile-quick-btn" onClick={() => setShowMobileSheet(true)}>
-                    <Sliders size={14} /> Properties
-                </button>
-            </div>
+            )}
 
             {/* Floating Color Picker Overlay */}
             {activePicker && (
