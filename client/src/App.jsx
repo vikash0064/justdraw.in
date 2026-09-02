@@ -18,8 +18,9 @@ const JoinRoom = lazy(() => import('./pages/JoinRoom'));
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const hasTokenInUrl = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('token');
 
-  if (loading) {
+  if (loading || hasTokenInUrl) {
     return <ExcalidrawLoader fullScreen={true} />;
   }
 

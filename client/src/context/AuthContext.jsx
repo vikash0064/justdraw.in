@@ -11,6 +11,18 @@ export const useAuth = () => {
 };
 
 export function AuthProvider({ children }) {
+    // Synchronously extract and store OAuth token from URL before any child routes check auth
+    if (typeof window !== 'undefined') {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const tokenParam = params.get('token');
+            if (tokenParam) {
+                localStorage.setItem('centrio_token', tokenParam);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        } catch {}
+    }
+
     const [user, setUser] = useState(() => {
         try {
             const token = localStorage.getItem('centrio_token');
@@ -23,6 +35,7 @@ export function AuthProvider({ children }) {
         try {
             const token = localStorage.getItem('centrio_token');
             const cached = localStorage.getItem('centrio_user');
+            if (!token) return false;
             return !(token && cached);
         } catch { return true; }
     });
