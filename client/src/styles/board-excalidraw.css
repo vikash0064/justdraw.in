@@ -671,6 +671,42 @@
   overflow-y: auto;
 }
 
+.exc-properties-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--exc-border, rgba(255, 255, 255, 0.08));
+  margin-bottom: 4px;
+}
+
+.exc-panel-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--exc-border, rgba(255, 255, 255, 0.12));
+  background: transparent;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.exc-panel-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.exc-tablet-props-trigger {
+  display: none;
+}
+
+.exc-toolbar-expand-pill {
+  display: none;
+}
+
 .selected-shape-actions {
   display: flex;
   flex-direction: column;
@@ -1469,17 +1505,28 @@ legend, .exc-panel-label {
     white-space: nowrap;
   }
   
-  /* Center: Drawing Toolbar embedded in Topbar — enlarged for tablet fingers & stylus */
+  /* Center: Drawing Toolbar moved to BOTTOM dock on tablet (Apple iPad style, eliminates topbar overlap) */
   .exc-toolbar {
-    position: absolute !important;
-    top: max(8px, env(safe-area-inset-top)) !important;
+    position: fixed !important;
+    top: auto !important;
+    bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px)) !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     margin: 0 !important;
-    padding: 4px 8px;
+    padding: 6px 10px;
     gap: 4px;
-    box-shadow: var(--exc-toolbar-shadow);
-    z-index: 60;
+    background: var(--exc-toolbar-bg, #23232f) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
+    border-radius: 14px !important;
+    z-index: 90 !important;
+    max-width: calc(100vw - 24px) !important;
+    overflow-x: auto !important;
+  }
+
+  .exc-toolbar::-webkit-scrollbar {
+    display: none;
   }
 
   .exc-toolbar .exc-tool-btn {
@@ -1494,7 +1541,36 @@ legend, .exc-panel-label {
     height: 19px !important;
   }
 
-  /* Right: Only Share, AI, Sidebar, Fullscreen, and Palm Rejection Buttons */
+  /* Minimized/Collapsed Toolbar Pill on Tablet */
+  .exc-toolbar-expand-pill {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
+    left: 50%;
+    transform: translateX(-50%);
+    height: 42px;
+    padding: 0 18px;
+    border-radius: 24px;
+    background: var(--exc-toolbar-bg, #23232f);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    cursor: pointer;
+    z-index: 90;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .exc-toolbar-expand-pill:hover {
+    transform: translateX(-50%) scale(1.05);
+  }
+
+  /* Right: Share, AI, Sidebar, Fullscreen, and Palm Rejection Buttons */
   .exc-presence,
   .exc-topbar-right > button:not(.exc-share-btn):not(.exc-ai-btn):not(.exc-sidebar-btn):not(.exc-fullscreen-btn):not(.exc-palm-btn) {
     display: none !important;
@@ -1526,15 +1602,58 @@ legend, .exc-panel-label {
     color: #fff !important;
   }
 
-  /* Left Properties Panel — Wider & touch-friendly on tablets */
-  .exc-properties-panel {
+  /* Floating Tablet Properties Trigger */
+  .exc-tablet-props-trigger {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
     top: max(74px, calc(env(safe-area-inset-top) + 64px));
     left: 14px;
-    width: 256px;
-    padding: 14px 14px 16px 14px;
-    max-height: calc(100vh - 120px);
-    z-index: 65;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--exc-panel-bg, #232329);
+    border: 1px solid var(--exc-border, rgba(255, 255, 255, 0.16));
+    color: #f1f5f9;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    z-index: 64;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(.23,1,.32,1);
+  }
+
+  .exc-tablet-props-trigger:hover,
+  .exc-tablet-props-trigger.is-open {
+    background: var(--exc-btn-hover, #363642);
+    transform: scale(1.05);
+  }
+
+  .exc-props-trigger-color {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid #232329;
+  }
+
+  /* Left Properties Panel — Hidden by default on tablet until clicked, can be closed anytime */
+  .exc-properties-panel {
+    display: none !important;
+  }
+
+  .exc-properties-panel.tablet-open {
+    display: flex !important;
+    position: fixed !important;
+    top: max(74px, calc(env(safe-area-inset-top) + 64px)) !important;
+    left: 14px !important;
+    width: 256px !important;
+    padding: 12px 14px 16px 14px !important;
+    max-height: calc(100vh - 160px) !important;
+    z-index: 70 !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.14) !important;
+    animation: panelIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
 
   .exc-properties-panel .color-picker__button {

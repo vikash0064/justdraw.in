@@ -358,6 +358,8 @@ export default function BoardPage() {
     const [isDockFullscreen, setIsDockFullscreen] = useState(false);
     const [cmdQuery, setCmdQuery] = useState('');
     const [showMobileSheet, setShowMobileSheet] = useState(false);
+    const [isTabletPropsOpen, setIsTabletPropsOpen] = useState(false);
+    const [isToolbarCollapsed, setIsToolbarCollapsed] = useState(false);
     const pickerTimeoutRef = useRef(null);
     const touchStateRef = useRef({ dist: 0, scale: 1, pos: { x: 0, y: 0 }, center: { x: 0, y: 0 } });
     const activePenPointerIdRef = useRef(null);
@@ -3882,112 +3884,135 @@ export default function BoardPage() {
                     )}
                 </div>
 
-                {/* Center: TOOL TOOLBAR (absolutely positioned) */}
-                {!isNotesMode ? (
-                    <div className="exc-toolbar">
-                    <button
-                        className={`exc-tool-btn${toolLock ? ' active' : ''}`}
-                        onClick={() => setToolLock(!toolLock)}
-                        data-exc-tooltip="Keep tool active after drawing (Q)"
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="5" y="11" width="14" height="10" rx="2"></rect><circle cx="12" cy="16" r="1"></circle><path d="M8 11v-4a4 4 0 0 1 8 0v4"></path></svg>
-                    </button>
-                    <div className="exc-toolbar-sep" style={{ margin: '0 4px' }} />
-                    {availableTools.filter(t => t.id !== 'lock').map((t) => (
-                        <button key={t.id} className={`exc-tool-btn${tool === t.id ? ' active' : ''}`}
-                            onClick={() => {
-                                if (t.id === 'image') {
-                                    document.getElementById('image-upload-input')?.click();
-                                } else {
-                                    setTool(t.id);
-                                }
-                            }} data-exc-tooltip={`${t.label} (${t.key})`}>
-                            {t.id === 'select' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 15l7 7"></path><path d="M4 4l14.899 5.352a.51 .51 0 0 1 .114 .96l-7.394 2.87l-2.87 7.394a.51 .51 0 0 1 -.96 -.114z"></path></svg>}
-                            {t.id === 'pan' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 13v-7.5a1.5 1.5 0 0 1 3 0v6.5"></path><path d="M11 5.5v-2a1.5 1.5 0 1 1 3 0v8.5"></path><path d="M14 5.5a1.5 1.5 0 0 1 3 0v6.5"></path><path d="M17 7.5a1.5 1.5 0 0 1 3 0v8.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7a69.74 69.74 0 0 1 -.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47"></path></svg>}
-                            {t.id === 'pencil' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"></path><path d="M13.5 6.5l4 4"></path></svg>}
-                            {t.id === 'rect' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"></path></svg>}
-                            {t.id === 'diamond' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 3l9 9l-9 9l-9 -9z"></path></svg>}
-                            {t.id === 'circle' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path></svg>}
-                            {t.id === 'arrow' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l14 0"></path><path d="M13 18l6 -6"></path><path d="M13 6l6 6"></path></svg>}
-                            {t.id === 'line' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 12l16 0"></path></svg>}
-                            {t.id === 'text' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20l3 0"></path><path d="M17 20l3 0"></path><path d="M6 9v-4h12v4"></path><path d="M12 5v15"></path></svg>}
-                            {t.id === 'image' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 8h.01"></path><path d="M4 4m0 3a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3z"></path><path d="M4 15l4 -4a3 5 0 0 1 3 0l5 5"></path><path d="M14 14l1 -1a3 5 0 0 1 3 0l2 2"></path></svg>}
-                            {t.id === 'eraser' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19 20h-10.5l-4.22 -4.22a2 2 0 0 1 0 -2.83l9.54 -9.54a2 2 0 0 1 2.83 0l4.24 4.24a2 2 0 0 1 0 2.83l-8 8"></path><path d="M18 15l-6 -6"></path></svg>}
-                            {t.id !== 'pan' && t.id !== 'lock' && <span className="exc-shortcut">{t.key}</span>}
-                        </button>
-                    ))}
-                    {modeTools.length > 0 && (
-                        <>
-                            <div className="exc-toolbar-sep" style={{ margin: '0 4px' }} />
-                            {modeTools.map((t) => (
+                {/* Center: TOOL TOOLBAR (bottom dock on tablet, centered topbar on desktop) */}
+                {!isNotesMode && (
+                    <>
+                        {isToolbarCollapsed ? (
+                            <button
+                                type="button"
+                                className="exc-toolbar-expand-pill"
+                                onClick={() => setIsToolbarCollapsed(false)}
+                                title="Show Drawing Tools"
+                            >
+                                <Pencil size={16} />
+                                <span>Tools</span>
+                            </button>
+                        ) : (
+                            <div className="exc-toolbar">
                                 <button
-                                    key={t.id}
-                                    className="exc-tool-btn"
-                                    onClick={t.action}
-                                    data-exc-tooltip={t.label}
-                                    style={{ color: '#a78bfa' }}
+                                    className={`exc-tool-btn${toolLock ? ' active' : ''}`}
+                                    onClick={() => setToolLock(!toolLock)}
+                                    data-exc-tooltip="Keep tool active after drawing (Q)"
                                 >
-                                    <t.icon size={18} />
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="5" y="11" width="14" height="10" rx="2"></rect><circle cx="12" cy="16" r="1"></circle><path d="M8 11v-4a4 4 0 0 1 8 0v4"></path></svg>
                                 </button>
-                            ))}
-                        </>
-                    )}
-                    <div className="exc-toolbar-sep" style={{ margin: '0 4px' }} />
-                    <div style={{ position: 'relative', display: 'inline-flex' }}>
-                        <button
-                            className={`exc-tool-btn exc-more-tools-trigger${showMoreTools ? ' active' : ''}`}
-                            onClick={(e) => { e.stopPropagation(); setShowMoreTools(!showMoreTools); }}
-                            data-exc-tooltip="More tools"
-                            style={{ background: showMoreTools ? '#3b388e' : undefined, color: showMoreTools ? '#fff' : undefined }}
-                        >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-                        </button>
+                                <div className="exc-toolbar-sep" style={{ margin: '0 4px' }} />
+                                {availableTools.filter(t => t.id !== 'lock').map((t) => (
+                                    <button key={t.id} className={`exc-tool-btn${tool === t.id ? ' active' : ''}`}
+                                        onClick={() => {
+                                            if (t.id === 'image') {
+                                                document.getElementById('image-upload-input')?.click();
+                                            } else {
+                                                setTool(t.id);
+                                            }
+                                        }} data-exc-tooltip={`${t.label} (${t.key})`}>
+                                        {t.id === 'select' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 15l7 7"></path><path d="M4 4l14.899 5.352a.51 .51 0 0 1 .114 .96l-7.394 2.87l-2.87 7.394a.51 .51 0 0 1 -.96 -.114z"></path></svg>}
+                                        {t.id === 'pan' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 13v-7.5a1.5 1.5 0 0 1 3 0v6.5"></path><path d="M11 5.5v-2a1.5 1.5 0 1 1 3 0v8.5"></path><path d="M14 5.5a1.5 1.5 0 0 1 3 0v6.5"></path><path d="M17 7.5a1.5 1.5 0 0 1 3 0v8.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7a69.74 69.74 0 0 1 -.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47"></path></svg>}
+                                        {t.id === 'pencil' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"></path><path d="M13.5 6.5l4 4"></path></svg>}
+                                        {t.id === 'rect' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"></path></svg>}
+                                        {t.id === 'diamond' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 3l9 9l-9 9l-9 -9z"></path></svg>}
+                                        {t.id === 'circle' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path></svg>}
+                                        {t.id === 'arrow' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l14 0"></path><path d="M13 18l6 -6"></path><path d="M13 6l6 6"></path></svg>}
+                                        {t.id === 'line' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 12l16 0"></path></svg>}
+                                        {t.id === 'text' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20l3 0"></path><path d="M17 20l3 0"></path><path d="M6 9v-4h12v4"></path><path d="M12 5v15"></path></svg>}
+                                        {t.id === 'image' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 8h.01"></path><path d="M4 4m0 3a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3z"></path><path d="M4 15l4 -4a3 5 0 0 1 3 0l5 5"></path><path d="M14 14l1 -1a3 5 0 0 1 3 0l2 2"></path></svg>}
+                                        {t.id === 'eraser' && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19 20h-10.5l-4.22 -4.22a2 2 0 0 1 0 -2.83l9.54 -9.54a2 2 0 0 1 2.83 0l4.24 4.24a2 2 0 0 1 0 2.83l-8 8"></path><path d="M18 15l-6 -6"></path></svg>}
+                                        {t.id !== 'pan' && t.id !== 'lock' && <span className="exc-shortcut">{t.key}</span>}
+                                    </button>
+                                ))}
+                                {modeTools.length > 0 && (
+                                    <>
+                                        <div className="exc-toolbar-sep" style={{ margin: '0 4px' }} />
+                                        {modeTools.map((t) => (
+                                            <button
+                                                key={t.id}
+                                                className="exc-tool-btn"
+                                                onClick={t.action}
+                                                data-exc-tooltip={t.label}
+                                                style={{ color: '#a78bfa' }}
+                                            >
+                                                <t.icon size={18} />
+                                            </button>
+                                        ))}
+                                    </>
+                                )}
+                                <div className="exc-toolbar-sep" style={{ margin: '0 4px' }} />
+                                <div style={{ position: 'relative', display: 'inline-flex' }}>
+                                    <button
+                                        className={`exc-tool-btn exc-more-tools-trigger${showMoreTools ? ' active' : ''}`}
+                                        onClick={(e) => { e.stopPropagation(); setShowMoreTools(!showMoreTools); }}
+                                        data-exc-tooltip="More tools"
+                                        style={{ background: showMoreTools ? '#3b388e' : undefined, color: showMoreTools ? '#fff' : undefined }}
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                    </button>
 
-                        {showMoreTools && (
-                            <MoreToolsMenu
-                                activeTool={tool}
-                                onSelectTool={(t) => { setTool(t); setShowMoreTools(false); }}
-                                onOpenWebEmbed={() => setShowWebEmbedModal(true)}
-                                onOpenTextToDiagram={() => setShowAIDiagramModal(true)}
-                                onOpenMermaid={() => setShowMermaidModal(true)}
-                                onOpenWireframeToCode={() => setShowWireframeModal(true)}
-                                onClose={() => setShowMoreTools(false)}
-                            />
+                                    {showMoreTools && (
+                                        <MoreToolsMenu
+                                            activeTool={tool}
+                                            onSelectTool={(t) => { setTool(t); setShowMoreTools(false); }}
+                                            onOpenWebEmbed={() => setShowWebEmbedModal(true)}
+                                            onOpenTextToDiagram={() => setShowAIDiagramModal(true)}
+                                            onOpenMermaid={() => setShowMermaidModal(true)}
+                                            onOpenWireframeToCode={() => setShowWireframeModal(true)}
+                                            onClose={() => setShowMoreTools(false)}
+                                        />
+                                    )}
+                                </div>
+                                <button
+                                    type="button"
+                                    className="exc-tool-btn exc-toolbar-collapse-trigger"
+                                    onClick={() => setIsToolbarCollapsed(true)}
+                                    data-exc-tooltip="Minimize toolbar"
+                                    style={{ marginLeft: 2, color: 'var(--text-muted)' }}
+                                >
+                                    <ChevronDown size={17} />
+                                </button>
+                                <input
+                                    type="file"
+                                    id="image-upload-input"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onload = (ev) => {
+                                                const img = new Image();
+                                                img.onload = () => {
+                                                    const newShape = {
+                                                        id: genId(),
+                                                        type: 'image',
+                                                        x: Math.round((stageSize.width / 2 - stagePos.x) / stageScale - img.width / 2),
+                                                        y: Math.round((stageSize.height / 2 - stagePos.y) / stageScale - img.height / 2),
+                                                        width: img.width,
+                                                        height: img.height,
+                                                        url: ev.target.result
+                                                    };
+                                                    setShapes(prev => [...prev, newShape]);
+                                                    socket?.emit('shape:add', { boardId, pageId: activePageId, shape: newShape });
+                                                    setTimeout(() => pushHistory(), 0);
+                                                };
+                                                img.src = ev.target.result;
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                />
+                            </div>
                         )}
-                    </div>
-                    <input
-                        type="file"
-                        id="image-upload-input"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (ev) => {
-                                    const img = new Image();
-                                    img.onload = () => {
-                                        const newShape = {
-                                            id: genId(),
-                                            type: 'image',
-                                            x: Math.round((stageSize.width / 2 - stagePos.x) / stageScale - img.width / 2),
-                                            y: Math.round((stageSize.height / 2 - stagePos.y) / stageScale - img.height / 2),
-                                            width: img.width,
-                                            height: img.height,
-                                            url: ev.target.result
-                                        };
-                                        setShapes(prev => [...prev, newShape]);
-                                        socket?.emit('shape:add', { boardId, pageId: activePageId, shape: newShape });
-                                        setTimeout(() => pushHistory(), 0);
-                                    };
-                                    img.src = ev.target.result;
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        }}
-                    />
-                </div>
-                ) : null}
+                    </>
+                )}
 
                 {/* Right: Presence + Actions */}
                 <div className="exc-topbar-right">
@@ -4110,13 +4135,45 @@ export default function BoardPage() {
 
             {/* ══ LEFT PROPERTIES PANEL (Desktop & Tablet) ══ */}
             {showPropertiesPanel && !isNotesMode && (
-                <div
-                    className="exc-properties-panel desktop-only-panel"
-                    style={{
-                        left: isArchMode && isArchLibOpen ? 316 : 16,
-                        transition: 'left 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
-                    }}
-                >
+                <>
+                    {/* Tablet Floating Trigger Button to open properties */}
+                    <button
+                        type="button"
+                        className={`exc-tablet-props-trigger${isTabletPropsOpen ? ' is-open' : ''}`}
+                        onClick={() => setIsTabletPropsOpen(!isTabletPropsOpen)}
+                        title={isTabletPropsOpen ? "Close Style Panel" : "Open Style & Color Panel"}
+                    >
+                        <Sliders size={18} />
+                        <span
+                            className="exc-props-trigger-color"
+                            style={{ backgroundColor: color || '#8178e8' }}
+                        />
+                    </button>
+
+                    <div
+                        className={`exc-properties-panel desktop-only-panel${isTabletPropsOpen ? ' tablet-open' : ''}`}
+                        style={{
+                            left: isArchMode && isArchLibOpen ? 316 : 16,
+                            transition: 'left 0.22s cubic-bezier(0.16, 1, 0.3, 1)'
+                        }}
+                    >
+                        {/* Header with Close [X] button so user can easily close it */}
+                        <div className="exc-properties-panel-header">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <Sliders size={13} style={{ color: '#8178e8' }} />
+                                <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                    {hasSelection ? 'Element Styles' : 'Styles & Color'}
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                className="exc-panel-close-btn"
+                                onClick={() => setIsTabletPropsOpen(false)}
+                                title="Close Styles Panel"
+                            >
+                                <X size={15} />
+                            </button>
+                        </div>
                     {tool === 'eraser' && !hasSelection ? (
                         <div className="selected-shape-actions">
                             <fieldset className="exc-fieldset">
@@ -4543,6 +4600,7 @@ export default function BoardPage() {
                         </>
                     )}
                 </div>
+                </>
             )}
 
             {/* ══ MOBILE PROPERTIES BOTTOM SHEET ══ */}
