@@ -32,9 +32,19 @@ function getGreeting() {
 }
 
 export default function Dashboard() {
-    const { user, logout } = useAuth();
+    const { user, logout, loginWithToken } = useAuth();
     const { theme, toggleTheme, setTheme } = useTheme();
     const navigate = useNavigate();
+
+    // Intercept Google OAuth JWT token from URL if redirected directly to dashboard
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        if (token) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            loginWithToken(token);
+        }
+    }, [loginWithToken]);
 
     // Active Navigation Tab: 'workspaces' | 'recent' | 'settings'
     const [activeTab, setActiveTab] = useState('workspaces');
