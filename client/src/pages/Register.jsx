@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Sun, Moon } from 'lucide-react';
@@ -73,7 +73,7 @@ export default function Register() {
     const popup = window.open(
       authUrl,
       'GoogleAuthPopup',
-      `width=${width},height=${height},left=${left},top=${top},status=no,menubar=no,toolbar=no`
+      `width=${width},height=${height},left=${left},top=${top},popup=yes,status=no,menubar=no,toolbar=no`
     );
 
     if (!popup || popup.closed || typeof popup.closed === 'undefined') {
