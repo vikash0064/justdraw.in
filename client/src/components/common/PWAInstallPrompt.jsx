@@ -9,17 +9,20 @@ export default function PWAInstallPrompt() {
     const [installed, setInstalled] = useState(false);
 
     useEffect(() => {
-        // Check if running in standalone mode (already installed as PWA)
+        // 1. Check if already installed or in standalone PWA app mode
+        const isAlreadyInstalled = localStorage.getItem('justdraw_pwa_installed') === 'true';
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                             window.navigator.standalone === true;
+                             window.navigator.standalone === true ||
+                             isAlreadyInstalled;
+
         if (isStandalone) {
             setInstalled(true);
-            return;
+            return; // Once downloaded/installed, NEVER ask again!
         }
 
-        // Check if user dismissed prompt recently (within 7 days)
+        // 2. If NOT installed: Check if dismissed in this current session/last 24 hours
         const dismissedAt = localStorage.getItem('justdraw_pwa_dismissed');
-        if (dismissedAt && Date.now() - parseInt(dismissedAt, 10) < 7 * 24 * 60 * 60 * 1000) {
+        if (dismissedAt && Date.now() - parseInt(dismissedAt, 10) < 24 * 60 * 60 * 1000) {
             return;
         }
 
@@ -29,31 +32,36 @@ export default function PWAInstallPrompt() {
         setIsIOS(isAppleDevice);
 
         if (isAppleDevice) {
-            // Show iOS prompt after a short pleasant delay
+            // Show prompt on iPad/iOS if not installed yet
             const timer = setTimeout(() => {
                 setShowPrompt(true);
-            }, 2500);
+            }, 2000);
             return () => clearTimeout(timer);
         }
 
-        // Android / Chrome / Edge beforeinstallprompt
+        // Android / Chrome / Edge / Laptop beforeinstallprompt
         const handleBeforeInstall = (e) => {
             e.preventDefault();
             setDeferredPrompt(e);
             setTimeout(() => {
                 setShowPrompt(true);
-            }, 2000);
+            }, 1800);
         };
 
-        window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-        window.addEventListener('appinstalled', () => {
+        const handleAppInstalled = () => {
+            // Mark as downloaded permanently — NEVER ASK AGAIN
+            localStorage.setItem('justdraw_pwa_installed', 'true');
             setInstalled(true);
             setShowPrompt(false);
             setDeferredPrompt(null);
-        });
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+        window.addEventListener('appinstalled', handleAppInstalled);
 
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+            window.removeEventListener('appinstalled', handleAppInstalled);
         };
     }, []);
 
@@ -62,14 +70,24 @@ export default function PWAInstallPrompt() {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
+            // User downloaded/installed: save permanently
+            localStorage.setItem('justdraw_pwa_installed', 'true');
             setInstalled(true);
             setShowPrompt(false);
         }
         setDeferredPrompt(null);
     };
 
+    const handleMarkInstalled = () => {
+        // iOS or manual: user confirms they added to home screen
+        localStorage.setItem('justdraw_pwa_installed', 'true');
+        setInstalled(true);
+        setShowPrompt(false);
+    };
+
     const handleDismiss = () => {
         setShowPrompt(false);
+        // If dismissed without installing, remind again tomorrow
         localStorage.setItem('justdraw_pwa_dismissed', Date.now().toString());
     };
 
@@ -161,6 +179,47 @@ export default function PWAInstallPrompt() {
                         <span>Install on your device for a 100% distraction-free full-screen whiteboard with home screen app icon.</span>
                     )}
                 </div>
+
+                {isIOS && (
+                    <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                        <button
+                            onClick={handleMarkInstalled}
+                            style={{
+                                flex: 1,
+                                height: 34,
+                                background: 'rgba(99, 102, 241, 0.2)',
+                                border: '1px solid rgba(99, 102, 241, 0.4)',
+                                borderRadius: 8,
+                                color: '#a5b4fc',
+                                fontSize: 12,
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 5
+                            }}
+                        >
+                            <Check size={14} /> Already Added (Don't Ask Again)
+                        </button>
+                        <button
+                            onClick={handleDismiss}
+                            style={{
+                                padding: '0 12px',
+                                height: 34,
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: 8,
+                                color: '#cbd5e1',
+                                fontSize: 12,
+                                fontWeight: 500,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Later
+                        </button>
+                    </div>
+                )}
 
                 {!isIOS && deferredPrompt && (
                     <div style={{ marginTop: 14, display: 'flex', gap: 8 }}>
