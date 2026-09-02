@@ -211,21 +211,21 @@ h1, h2 {
 }
 
 h1 { 
-  font-size: clamp(50px, 6.8vw, 100px); 
-  line-height: .99; 
+  font-size: clamp(38px, 5.2vw, 84px); 
+  line-height: 1.05; 
 }
 
 h2 { 
-  font-size: clamp(39px, 5vw, 69px); 
-  line-height: 1.04; 
+  font-size: clamp(28px, 3.8vw, 56px); 
+  line-height: 1.1; 
 }
 
 .hero-copy { 
-  margin: 27px auto 27px; 
-  max-width: 565px; 
+  margin: 22px auto; 
+  max-width: min(580px, 90%); 
   color: var(--muted); 
-  font-size: 17px; 
-  line-height: 1.75; 
+  font-size: clamp(15px, 1.15vw, 17px); 
+  line-height: 1.7; 
 }
 
 .hero-actions { 
@@ -573,17 +573,17 @@ h2 {
 .intro p, .closing p, .pricing p { color: var(--muted); }
 
 .timeline-wrap { 
-  width: min(1190px, calc(100% - 52px)); 
+  width: min(1190px, calc(100% - 48px)); 
   margin: 0 auto; 
   position: relative; 
-  padding-left: 105px; 
+  padding-left: clamp(48px, 6vw, 90px); 
 }
 
 .timeline-wrap:before { 
   content: ""; 
   width: 2px; 
   position: absolute; 
-  left: 28px; 
+  left: clamp(16px, 2vw, 24px); 
   top: 0; 
   bottom: 0; 
   background: var(--lavender); 
@@ -591,15 +591,15 @@ h2 {
 
 .feature { 
   position: relative; 
-  padding: 75px 0 125px; 
+  padding: 60px 0 100px; 
 }
 
 .timeline-marker { 
   position: absolute; 
-  left: -105px; 
-  top: 71px; 
-  width: 58px; 
-  height: 58px; 
+  left: clamp(-90px, -6vw, -48px); 
+  top: 65px; 
+  width: clamp(42px, 4.5vw, 56px); 
+  height: clamp(42px, 4.5vw, 56px); 
   border: 2px solid var(--violet); 
   border-radius: 50%; 
   background: var(--paper); 
@@ -608,7 +608,7 @@ h2 {
   transform: rotate(-7deg); 
 }
 
-.timeline-marker span { font: 700 14px 'Fraunces', serif; }
+.timeline-marker span { font: 700 13px 'Fraunces', serif; }
 
 .feature-copy { max-width: 890px; }
 
@@ -641,10 +641,13 @@ h2 {
 .product-feature .product-body { min-height: 470px; }
 
 .product-feature .generated-product-art { 
-  width: calc(100% - 325px); 
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  max-width: 100%;
   object-fit: cover; 
   object-position: center; 
-  padding: 22px; 
+  padding: clamp(10px, 1.8vw, 22px); 
 }
 
 .product-feature .browser-footer { display: none; }
@@ -941,16 +944,42 @@ footer > div:last-child {
 .closing .eyebrow { transform: rotate(-2deg); }
 .closing:after { content: "a little structure / a lot of room"; position: absolute; right: 8%; margin-top: 55px; color: #76a07d; font: 600 13px 'Fraunces', serif; transform: rotate(4deg); }
 
-@media (max-width: 900px) {
-  .top-nav .brand:after { display: none }
-  .intro { padding-left: 0 }
-  .intro:before, .intro:after, .pricing:before, .pricing:after, .closing:after, .social-proof:before, .feature:after { display: none }
-  .feature, .feature:nth-child(even) { padding-left: 0; padding-right: 0 }
-  .feature:nth-child(even) .feature-copy { margin-left: 0 }
-  .feature:nth-child(3) .product-frame, .feature:nth-child(4) .product-frame, .feature:nth-child(5) .product-frame { width: 100%; margin-left: 0 }
-  .closing { text-align: center; padding-left: 0 }
-  .closing p { margin-inline: auto }
-  .closing .hero-actions { justify-content: center }
+/* ── Laptop Screen Responsiveness (1024px - 1440px) ── */
+@media (max-width: 1440px) {
+  .intro { padding-left: 0; text-align: center; }
+  .intro h2, .intro p, .intro .hero-actions { justify-content: center; text-align: center; }
+  .intro:before, .intro:after, .pricing:before, .pricing:after, .closing:after, .social-proof:before, .feature:after { display: none; }
+  .feature, .feature:nth-child(even) { padding-left: 0 !important; padding-right: 0 !important; }
+  .feature:nth-child(even) .feature-copy { margin-left: 0; }
+  .feature:nth-child(3) .product-frame, .feature:nth-child(4) .product-frame, .feature:nth-child(5) .product-frame { width: 100% !important; margin-left: 0 !important; }
+  .closing { text-align: center; padding-left: 0; }
+  .closing p { margin-inline: auto; }
+  .closing .hero-actions { justify-content: center; }
+}
+
+@media (max-width: 1366px) {
+  .top-nav { width: min(1200px, calc(100% - 48px)); min-height: 76px; }
+  .section-wrap, .timeline-wrap { width: min(1140px, calc(100% - 48px)); }
+  .hero { padding-top: 80px; padding-bottom: 28px; }
+  .product-body { min-height: 390px; }
+  .tool-rail { width: 95px; padding: 18px 10px; }
+  .comment-rail { width: 150px; padding: 18px 10px; }
+  .timeline-wrap { padding-left: 70px; }
+  .timeline-marker { left: -70px; }
+  .top-nav nav { gap: 20px; font-size: 13px; }
+}
+
+@media (max-width: 1120px) {
+  .top-nav nav { gap: 14px; font-size: 12px; }
+  .nav-actions { gap: 10px; }
+  .nav-actions .icon-link span { display: none; }
+  .hero { padding-top: 64px; }
+  .product-body { min-height: 350px; }
+  .tool-rail { width: 80px; padding: 14px 8px; }
+  .comment-rail { width: 130px; padding: 14px 8px; }
+  .timeline-wrap { padding-left: 55px; }
+  .timeline-wrap:before { left: 18px; }
+  .timeline-marker { left: -55px; width: 40px; height: 40px; }
 }
 
 /* ── Scroll Performance Optimizations ── */
