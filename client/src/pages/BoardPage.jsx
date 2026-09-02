@@ -607,8 +607,9 @@ export default function BoardPage() {
         if (selectedIds.size === 0) return;
         setShapes(prev => prev.map(s => {
             if (selectedIds.has(s.id)) {
-                const updated = { ...s, ...updates };
-                socket?.emit('shape:update', { boardId, pageId: activePageId, shapeId: s.id, updates });
+                const resolvedUpdates = typeof updates === 'function' ? updates(s) : updates;
+                const updated = { ...s, ...resolvedUpdates };
+                socket?.emit('shape:update', { boardId, pageId: activePageId, shapeId: s.id, updates: resolvedUpdates });
                 return updated;
             }
             return s;
@@ -4467,7 +4468,15 @@ export default function BoardPage() {
                                             type="button"
                                             className={`fill-style-btn${fillStyle === 'hachure' ? ' active' : ''}`}
                                             title="Hachure"
-                                            onClick={() => { setFillStyle('hachure'); updateSelectedShapes({ fillStyle: 'hachure' }); }}
+                                            onClick={() => {
+                                                setFillStyle('hachure');
+                                                const fallbackFill = (bgColor && bgColor !== 'transparent') ? bgColor : color;
+                                                if (bgColor === 'transparent') setBgColor(fallbackFill);
+                                                updateSelectedShapes(s => ({
+                                                    fillStyle: 'hachure',
+                                                    fill: (!s.fill || s.fill === 'transparent') ? (s.stroke || fallbackFill) : s.fill
+                                                }));
+                                            }}
                                         >
                                             <svg aria-hidden="true" focusable="false" role="img" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><path d="M5.879 2.625h8.242a3.254 3.254 0 0 1 3.254 3.254v8.242a3.254 3.254 0 0 1-3.254 3.254H5.88a3.254 3.254 0 0 1-3.254-3.254V5.88a3.254 3.254 0 0 1 3.254-3.254Z" strokeWidth="1.25"></path><mask id="FillHachureIcon" maskUnits="userSpaceOnUse" x="2" y="2" width="16" height="16" style={{ maskType: 'alpha' }}><path d="M5.879 2.625h8.242a3.254 3.254 0 0 1 3.254 3.254v8.242a3.254 3.254 0 0 1-3.254 3.254H5.88a3.254 3.254 0 0 1-3.254-3.254V5.88a3.254 3.254 0 0 1 3.254-3.254Z" fill="currentColor" strokeWidth="1.25"></path></mask><g mask="url(#FillHachureIcon)"><path d="M2.258 15.156 15.156 2.258M7.324 20.222 20.222 7.325m-20.444 5.35L12.675-.222m-8.157 18.34L17.416 5.22" strokeWidth="1.25"></path></g></svg>
                                         </button>
@@ -4475,7 +4484,15 @@ export default function BoardPage() {
                                             type="button"
                                             className={`fill-style-btn${fillStyle === 'cross-hatch' ? ' active' : ''}`}
                                             title="Cross-hatch"
-                                            onClick={() => { setFillStyle('cross-hatch'); updateSelectedShapes({ fillStyle: 'cross-hatch' }); }}
+                                            onClick={() => {
+                                                setFillStyle('cross-hatch');
+                                                const fallbackFill = (bgColor && bgColor !== 'transparent') ? bgColor : color;
+                                                if (bgColor === 'transparent') setBgColor(fallbackFill);
+                                                updateSelectedShapes(s => ({
+                                                    fillStyle: 'cross-hatch',
+                                                    fill: (!s.fill || s.fill === 'transparent') ? (s.stroke || fallbackFill) : s.fill
+                                                }));
+                                            }}
                                         >
                                             <svg aria-hidden="true" focusable="false" role="img" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><g clipPath="url(#fillCrossHatchClip)"><path d="M5.879 2.625h8.242a3.254 3.254 0 0 1 3.254 3.254v8.242a3.254 3.254 0 0 1-3.254 3.254H5.88a3.254 3.254 0 0 1-3.254-3.254V5.88a3.254 3.254 0 0 1 3.254-3.254Z" strokeWidth="1.25"></path><mask id="FillCrossHatchIcon" maskUnits="userSpaceOnUse" x="-1" y="-1" width="22" height="22" style={{ maskType: 'alpha' }}><path d="M2.426 15.044 15.044 2.426M7.383 20 20 7.383M0 12.617 12.617 0m-7.98 17.941L17.256 5.324m-2.211 12.25L2.426 4.956M20 12.617 7.383 0m5.234 20L0 7.383m17.941 7.98L5.324 2.745" strokeWidth="1.25"></path></mask><g mask="url(#FillCrossHatchIcon)"><path d="M14.121 2H5.88A3.879 3.879 0 0 0 2 5.879v8.242A3.879 3.879 0 0 0 5.879 18h8.242A3.879 3.879 0 0 0 18 14.121V5.88A3.879 3.879 0 0 0 14.121 2Z" fill="currentColor"></path></g></g><defs><clipPath id="fillCrossHatchClip"><path fill="#fff" d="M0 0h20v20H0z"></path></clipPath></defs></svg>
                                         </button>
@@ -4483,7 +4500,15 @@ export default function BoardPage() {
                                             type="button"
                                             className={`fill-style-btn${fillStyle === 'solid' ? ' active' : ''}`}
                                             title="Solid"
-                                            onClick={() => { setFillStyle('solid'); updateSelectedShapes({ fillStyle: 'solid' }); }}
+                                            onClick={() => {
+                                                setFillStyle('solid');
+                                                const fallbackFill = (bgColor && bgColor !== 'transparent') ? bgColor : color;
+                                                if (bgColor === 'transparent') setBgColor(fallbackFill);
+                                                updateSelectedShapes(s => ({
+                                                    fillStyle: 'solid',
+                                                    fill: (!s.fill || s.fill === 'transparent') ? (s.stroke || fallbackFill) : s.fill
+                                                }));
+                                            }}
                                         >
                                             <svg aria-hidden="true" focusable="false" role="img" viewBox="0 0 20 20" width="18" height="18" fill="currentColor" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><g clipPath="url(#fillSolidClip)"><path d="M4.91 2.625h10.18a2.284 2.284 0 0 1 2.285 2.284v10.182a2.284 2.284 0 0 1-2.284 2.284H4.909a2.284 2.284 0 0 1-2.284-2.284V4.909a2.284 2.284 0 0 1 2.284-2.284Z" strokeWidth="1.25"></path></g><defs><clipPath id="fillSolidClip"><path fill="#fff" d="M0 0h20v20H0z"></path></clipPath></defs></svg>
                                         </button>
@@ -5744,9 +5769,15 @@ function RoughShape({ shape, isSelected, tool, onClick, onTap, onDragEnd, onTran
 
         const fillStyle = shape.fillStyle || 'solid';
         const strokeStyle = shape.strokeStyle || 'solid';
-        const strokeWidth = shape.strokeWidth || 2;
-        const fill = (shape.fill === 'transparent' || !shape.fill) ? undefined : shape.fill;
         const stroke = shape.stroke || '#ffffff';
+        let fill = shape.fill;
+        if (fillStyle === 'hachure' || fillStyle === 'cross-hatch') {
+            if (!fill || fill === 'transparent') {
+                fill = stroke;
+            }
+        } else if (fill === 'transparent' || !fill) {
+            fill = undefined;
+        }
         const sloppiness = shape.sloppiness || 'artist';
         const roughness = sloppiness === 'architect' ? 0.2 : sloppiness === 'cartoonist' ? 2.5 : 1.2;
 
