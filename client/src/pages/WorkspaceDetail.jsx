@@ -292,7 +292,7 @@ export default function WorkspaceDetail() {
 
                                 {newMode === 'notes' && (
                                     <div className="input-group" style={{ marginTop: 12 }}>
-                                        <label>Select Paper Style (Apple Notes)</label>
+                                        <label>Select Paper Style (Notes Board)</label>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
                                             {[
                                                 { id: 'lined', label: '📝 Line wala Page (Ruled)', desc: 'Ruled notebook lines with margin' },

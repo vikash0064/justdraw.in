@@ -456,7 +456,7 @@ export default function Dashboard() {
                                     </div>
                                     <h3 className="poster-title"><NotebookPen size={16} color="#f59e0b" /> Notes Board</h3>
                                     <p className="poster-desc">Digital A4 paper notebook with Apple Pencil markup, highlighters, gallery strip, and PDF export.</p>
-                                    <span className="poster-tag" style={{ color: '#f59e0b', background: 'rgba(245, 158, 11, 0.15)' }}>Board 4 • Apple Notes</span>
+                                    <span className="poster-tag" style={{ color: '#f59e0b', background: 'rgba(245, 158, 11, 0.15)' }}>Board 4 • Notes Board</span>
                                 </motion.div>
                             </div>
                         </section>
@@ -938,7 +938,7 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <h2 style={{ fontSize: '1.25rem', margin: 0 }}>New Notes Document</h2>
-                                    <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>Choose your digital paper template (Apple Notes / iPad style)</p>
+                                    <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>Choose your digital paper template</p>
                                 </div>
                             </div>
 

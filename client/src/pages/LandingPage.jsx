@@ -708,7 +708,7 @@ export default function LandingPage() {
           <Feature
             number="05"
             label="digital paper & infinite canvas"
-            title="Notes Board (Apple Notes / iPad Style)"
+            title="Notes Board"
             copy="Pick up your Apple Pencil or stylus. Write, highlight, organize unlimited A4 paper pages, and export publication-ready PDF documents."
             preset="notes"
             tint="yellow"
