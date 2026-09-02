@@ -14,7 +14,7 @@ import {
     ShieldCheck, Sliders, Library, PanelRight, Pin, Radio, FolderKanban, Search,
     Folder, Zap, LogIn, LogOut, Globe, ChevronRight, Monitor, Presentation,
     AlignLeft, AlignCenter, AlignRight, ArrowDownToLine, ArrowDown, ArrowUp, ArrowUpToLine, Home,
-    FileText, ChevronDown, Hand, GripVertical
+    FileText, ChevronDown, Hand, GripVertical, Palette
 } from 'lucide-react';
 import { getBoard, getBoards } from '../api/board.api';
 import { getPages, createPage, updatePage, deletePage } from '../api/page.api';
@@ -4040,6 +4040,35 @@ export default function BoardPage() {
                                         />
                                     )}
                                 </div>
+
+                                <div className="exc-toolbar-sep" style={{ margin: '0 4px' }} />
+
+                                {/* Floating Styles & Color Panel Toggle Button (Tablet & Desktop) */}
+                                <button
+                                    className={`exc-tool-btn exc-props-toggle-btn${!isPropsPanelMinimized ? ' active' : ''}`}
+                                    onClick={() => setIsPropsPanelMinimized(!isPropsPanelMinimized)}
+                                    data-exc-tooltip={isPropsPanelMinimized ? "Open Styles & Colors" : "Minimize Styles & Colors"}
+                                    title="Styles & Colors"
+                                    style={{
+                                        position: 'relative',
+                                        backgroundColor: !isPropsPanelMinimized ? 'rgba(129, 120, 232, 0.22)' : undefined,
+                                        color: !isPropsPanelMinimized ? '#a5b4fc' : undefined
+                                    }}
+                                >
+                                    <Palette size={18} />
+                                    <span
+                                        style={{
+                                            position: 'absolute',
+                                            bottom: 3,
+                                            right: 3,
+                                            width: 7,
+                                            height: 7,
+                                            borderRadius: '50%',
+                                            backgroundColor: color || '#8178e8',
+                                            border: '1.5px solid #1e1e2d'
+                                        }}
+                                    />
+                                </button>
                                 <input
                                     type="file"
                                     id="image-upload-input"
@@ -4221,7 +4250,7 @@ export default function BoardPage() {
                             dragMomentum={false}
                             dragElastic={0.05}
                             whileDrag={{ scale: 1.01, boxShadow: '0 20px 48px rgba(0, 0, 0, 0.75)' }}
-                            className="exc-properties-panel desktop-only-panel draggable-control-panel"
+                            className="exc-properties-panel draggable-control-panel"
                             style={{
                                 position: 'fixed',
                                 top: 74,

@@ -1688,22 +1688,21 @@ legend, .exc-panel-label {
     border: 1.5px solid #232329;
   }
 
-  /* Left Properties Panel — Hidden by default on tablet until clicked, can be closed anytime */
+  /* Draggable Control Panel & Minimized Pill on Tablet */
   .exc-properties-panel {
-    display: none !important;
-  }
-
-  .exc-properties-panel.tablet-open {
     display: flex !important;
     position: fixed !important;
-    top: max(74px, calc(env(safe-area-inset-top) + 64px)) !important;
-    left: 14px !important;
     width: 256px !important;
-    padding: 12px 14px 16px 14px !important;
-    max-height: calc(100vh - 160px) !important;
+    max-height: calc(100vh - 140px) !important;
+    overflow-y: auto !important;
     z-index: 70 !important;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.14) !important;
-    animation: panelIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .exc-props-minimized-pill {
+    display: inline-flex !important;
+    position: fixed !important;
+    z-index: 70 !important;
   }
 
   .exc-properties-panel .color-picker__button {
